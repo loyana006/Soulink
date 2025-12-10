@@ -1,0 +1,381 @@
+/* --- Root Variables for Branding --- */
+:root {
+    /* Color Palette: Pinkish-Greenish */
+    --color-pink: #FF69B4; /* Deep Pink */
+    --color-teal: #008080; /* Strong Teal/Greenish */
+    --color-light-mint: #F8FFF8; /* Very light, calming background */
+    --color-text-dark: #333;
+    --color-text-light: #666;
+    --color-accent-soft: #e0f2f1; /* Light background for sections/cards */
+    --font-family: 'Quicksand', sans-serif;
+
+    /* Dashboard Variables for cleaner referencing */
+    --soulink-primary-warm: var(--color-pink); 
+    --soulink-text-color: var(--color-teal);
+    --soulink-light-bg: #ffffff;
+}
+
+/* --- Global & Typography --- */
+body {
+    background-color: var(--color-light-mint);
+    font-family: var(--font-family);
+    color: var(--color-text-dark);
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+}
+
+p {
+    color: var(--color-text-light);
+    line-height: 1.7;
+}
+
+/* --- Custom SOULINK Branding Styling (Logo) --- */
+.soulink-brand, .soulink-logo {
+    font-size: 1.5rem;
+    font-weight: 600; /* SemiBold */
+    letter-spacing: 0.02em; /* +2% letter spacing */
+    text-decoration: none;
+}
+
+.soulink-brand .soul, .soulink-logo .sou-color {
+    color: var(--color-pink);
+    /* Gradient for depth */
+    background: linear-gradient(90deg, var(--color-pink) 0%, #FFB6C1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.soulink-brand .link, .soulink-logo .link-color {
+    color: var(--color-teal);
+    /* Gradient for depth */
+    background: linear-gradient(90deg, var(--color-teal) 0%, #7FFFD4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Navigation Styling (for Index/Auth pages) --- */
+.navbar-custom {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.nav-link-custom {
+    font-weight: 600;
+    color: var(--color-text-dark) !important;
+    margin-right: 1.5rem;
+    transition: color 0.3s;
+}
+
+.nav-link-custom:hover {
+    color: var(--color-teal) !important;
+}
+
+/* ADDED: Active state for the in-app navigation links */
+.nav-link-custom.active {
+    border-bottom: 2px solid var(--color-pink);
+    color: var(--color-pink) !important;
+    font-weight: 700;
+}
+
+/* --- Button Styling --- */
+.btn-primary-custom, .soulink-signup-btn {
+    background-color: var(--color-pink);
+    border-color: var(--color-pink);
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 1.8rem;
+    border-radius: 50px;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary-custom:hover, .btn-primary-custom:active, .btn-primary-custom:focus,
+.soulink-signup-btn:hover, .soulink-signup-btn:active, .soulink-signup-btn:focus {
+    background-color: var(--color-teal) !important;
+    border-color: var(--color-teal) !important;
+    box-shadow: 0 4px 10px rgba(0, 128, 128, 0.3) !important;
+}
+
+.btn-outline-custom, .soulink-login-btn {
+    border: 2px solid var(--color-teal);
+    color: var(--color-teal);
+    font-weight: 600;
+    padding: 0.6rem 1.8rem;
+    border-radius: 50px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-outline-custom:hover, .soulink-login-btn:hover {
+    background-color: var(--color-teal);
+    color: white;
+}
+
+.soulink-lg-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* --- Section and Utility Classes --- */
+.section-padding {
+    padding: 6rem 0;
+}
+
+.card-custom {
+    background-color: white;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    transition: transform 0.3s;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+}
+
+/* ADDED: Journal Header Style (Clean Banner replacement) */
+.journal-header {
+    background-color: white; 
+    border: 1px solid #e5e7eb; 
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* ADDED: Style for inputs to match the clean design */
+input[type="text"], textarea, .form-control-custom {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    width: 100%;
+    transition: border-color 0.3s;
+    font-family: var(--font-family);
+}
+input[type="text"]:focus, textarea:focus, .form-control-custom:focus {
+    border-color: var(--color-pink);
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(255, 105, 180, 0.25);
+}
+
+
+/* Hero section specific style (for landing page) */
+.hero-image-placeholder {
+    min-height: 400px;
+    background-color: var(--color-accent-soft);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Support Page Specific */
+.emergency-card {
+    background-color: #ede5e7; /* Light Pink for urgency */
+    border-left: 5px solid var(--color-pink);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.resource-list-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+/* Index Page Feature Boxes */
+.feature-icon-box {
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-icon-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon-box h3 {
+    font-weight: 700;
+    color: white;
+    margin-top: 1rem;
+}
+
+.box-pink { background-color: var(--color-pink); }
+.box-teal { background-color: var(--color-teal); }
+.box-mint { background-color: #4DB6AC; } /* A softer green/teal */
+
+.section-subtitle {
+    font-weight: 600;
+    color: var(--color-teal);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+/* --- Authentication Specific Styling --- */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background-color: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px; /* Standard form width */
+}
+
+.auth-card h2 {
+    color: var(--color-teal);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.auth-footer-text {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin-top: 1.5rem;
+}
+
+/* --- Structural CSS for Sidebar Dashboard Layout --- */
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.dashboard-sidebar {
+    width: 250px; 
+    background-color: white; /* Light background */
+    color: var(--color-text-dark);
+    padding: 2rem 1.5rem;
+    flex-shrink: 0;
+    border-right: 1px solid #eee;
+}
+
+.dashboard-main-content {
+    flex-grow: 1;
+    padding: 2rem 3rem;
+    background-color: var(--color-light-mint); 
+}
+
+/* Logo Styling in Sidebar (Light Theme) */
+.soulink-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
+}
+.soulink-logo .sou-color {
+    color: var(--color-pink);
+}
+.soulink-logo .link-color {
+    color: var(--color-teal) !important;
+}
+
+/* Sidebar Navigation Links */
+.sidebar-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    color: var(--color-text-dark);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 600;
+}
+
+.sidebar-nav-link:hover {
+    background-color: var(--color-accent-soft); 
+    color: var(--color-teal);
+}
+
+.sidebar-nav-link.active {
+    background-color: var(--color-pink); 
+    color: white;
+    box-shadow: 0 4px 8px rgba(255, 105, 180, 0.3);
+}
+
+/* Dashboard Summary Cards and Charts */
+.summary-card {
+    background-color: white;
+    border: 1px solid var(--color-accent-soft);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chart-placeholder {
+    background-color: white;
+    border: 1px solid var(--color-accent-soft);
+    border-radius: 10px;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-light);
+    font-style: italic;
+}
+
+.daily-focus-card {
+    background-color: var(--color-accent-soft);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--color-pink);
+}
+
+.daily-focus-card h4 {
+    color: var(--color-teal);
+    font-weight: 600;
+}
+
+.quick-journal-box {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 1rem;
+}
+
+.quick-journal-box textarea {
+    resize: vertical;
+}
+
+.article-preview-card {
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+.article-preview-card:hover {
+    background-color: #fafafa;
+}
+.article-preview-card h5 {
+    font-weight: 600;
+    color: var(--color-teal);
+}
+.article-preview-card small {
+    color: var(--color-pink);
+    font-weight: 600;
+}
