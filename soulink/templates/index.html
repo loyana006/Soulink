@@ -1,0 +1,93 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block main %}
+<section class="hero-section container section-padding pt-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <h1 class="hero-title display-4 text-center text-lg-start">Your space for expression, reflection, and healing.</h1>
+            <p class="fs-5 text-center text-lg-start mt-4 mb-4">
+                Soulink offers a Private Journal, Anonymous Confessionals, and an AI Chatbot to provide accessible, stigma-free emotional support.
+            </p>
+            <div class="d-grid gap-2 d-md-block text-center text-lg-start">
+                <a href="{% url 'signup' %}" class="btn btn-primary-custom btn-lg">Start your journey</a>
+                <a href="{% url 'about' %}" class="btn btn-outline-custom btn-lg ms-2">Learn More</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="hero-image-placeholder">
+                
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="container">
+
+<section class="container section-padding text-center">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <p class="section-subtitle">Addressing the Gap</p>
+            <h2 class="display-6 mb-4" style="color: var(--color-teal);">Breaking the Silence: Why Soulink Exists</h2>
+            <p class="fs-5 text-muted">
+                In Nepal, social stigma, high cost, and limited resources prevent many from seeking professional help for mental health. Soulink is designed to overcome these barriers by offering three core pillars of support in a single, accessible platform.
+            </p>
+        </div>
+    </div>
+</section>
+
+<hr class="container">
+
+<section id="features" class="container section-padding pt-0">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 text-center mb-5">
+            <p class="section-subtitle">Core Modules</p>
+            <h2 class="display-6" style="color: var(--color-pink);">Your Tools for Well-Being</h2>
+        </div>
+    </div>
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <a href="{% url 'login' %}" class="text-decoration-none">
+                <div class="feature-icon-box box-teal">
+                    <i class="fas fa-book-open fa-3x mb-3"></i> 
+                    <h3 class="h4">Private Journal</h3>
+                    <p class="mb-0 text-white">Securely record your thoughts and feelings. Entries are encrypted and **VISIBLE** only to you.</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4">
+            <a href="{% url 'login' %}" class="text-decoration-none">
+                <div class="feature-icon-box box-pink">
+                    <i class="fas fa-users fa-3x mb-3"></i> 
+                    <h3 class="h4">Anonymous Confessionals</h3>
+                    <p class="mb-0 text-white">Express yourself freely, share stories, and receive **SUPPORTING** feedback from peers.</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4">
+            <a href="{% url 'login' %}" class="text-decoration-none">
+                <div class="feature-icon-box box-mint">
+                    <i class="fas fa-robot fa-3x mb-3"></i> 
+                    <h3 class="h4">Yana AI Chatbot</h3>
+                    <p class="mb-0 text-white">Receive real-time, **EMPATHETIC** conversation and mindfulness suggestions, free of charge.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<hr class="container">
+
+<section class="container section-padding text-center" style="background-color: var(--color-accent-soft);">
+    <h2 class="display-6 mb-3" style="color: var(--color-pink);">Ready to take the first gentle step?</h2>
+    <p class="fs-5 text-muted mb-4">
+        Join the Soulink community today A safe, inclusive, and empowering space for your emotional well-being.
+    </p>
+    <a href="{% url 'signup' %}" class="btn btn-primary-custom btn-lg me-3">Create Free Account</a>
+    <a href="{% url 'support' %}" class="btn btn-outline-custom btn-lg">Need Immediate Help?</a>
+</section>
+{% endblock main %}

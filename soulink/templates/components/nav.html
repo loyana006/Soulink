@@ -1,0 +1,25 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom container">
+    <a class="navbar-brand soulink-brand" href="{% url 'home' %}">
+        <span class="soul">SOU</span><span class="link">LINK</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'about' %}">About</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'home' %}#features">Features</a></li>
+            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'support' %}">Support</a></li>
+            {% if user.is_authenticated %}
+            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'my_profile' %}">Profile</a></li>
+            <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'login' %}">Login</a></li>
+            <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="{% url 'signup' %}">Sign up</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

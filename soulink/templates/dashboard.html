@@ -1,0 +1,95 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        
+        <h2 class="section-title text-start mb-2" style="color: var(--soulink-text-color);">Welcome Back, Loyana!</h2>
+        <p class="lead text-muted mb-4">Let's see where you are in your journey today.</p>
+
+        <div class="daily-focus-card">
+            <h4 class="mb-2">Daily Intention <i class="fas fa-hand-holding-heart" style="color: var(--soulink-primary-warm);"></i></h4>
+            <p class="mb-0 text-dark fw-bold">"Today, I will practice patience and show compassion towards my own feelings."</p>
+            <small class="text-muted">A moment of mindfulness before you begin.</small>
+        </div>
+        
+        <h3 class="mb-3" style="color: var(--soulink-primary-warm);">Your Weekly Snapshot</h3>
+        <div class="row mb-5 g-3">
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <p class="small text-muted mb-0">Journals Last 7 Days</p>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);">5</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <p class="small text-muted mb-0">Most Frequent Mood</p>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);"> Calm</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <p class="small text-muted mb-0">Days Streak</p>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);">12</h3>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb-3" style="color: var(--soulink-text-color);">Your Weekly Emotional Landscape</h3>
+        <div class="chart-placeholder mb-5">
+            Placeholder for Data Visualization
+        </div>
+
+        <h3 class="mb-3 mt-5" style="color: var(--soulink-primary-warm);">Jump In: What Do You Choose?</h3>
+        <div class="row g-4 mb-5">
+            
+            <div class="col-md-6">
+                <a href="{% url 'journal' %}" class="btn soulink-signup-btn w-100 soulink-lg-btn">
+                    <i class="fas fa-pen-fancy me-2"></i> Start New Journal Entry
+                </a>
+            </div>
+            
+            <div class="col-md-6">
+                <a href="{% url 'chatbot' %}" class="btn soulink-login-btn w-100 soulink-lg-btn">
+                    <i class="fas fa-robot me-2"></i> Talk to Yana Now
+                </a>
+            </div>
+            
+            <div class="col-12">
+                <div class="quick-journal-box">
+                    <form action="/api/quick-journal" method="POST">
+                        <h5 style="color: var(--soulink-text-color);">Quick Thought Dump</h5>
+                        <textarea class="form-control mb-3" rows="3" placeholder="If you only have 30 seconds, write down a single thought or feeling..."></textarea>
+                        <button type="submit" class="btn btn-primary-custom btn-sm">Save to Journal</button>
+                        <a href="{% url 'journal' %}" class="btn btn-outline-custom btn-sm ms-2">Go to Full Journal</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="mb-4 mt-5" style="color: var(--soulink-text-color);">Recommended Reads from the Blog</h3>
+        
+        <div class="article-preview-card">
+            <a href="{% url 'blog' %}#article-1" class="text-decoration-none">
+                <h5 class="mb-1">5 Simple Ways to Manage Anxiety in the Workplace</h5>
+                <p class="mb-0 text-muted small">Techniques to ground yourself and reduce stress during busy days.</p>
+                <small>Mindfulness</small>
+            </a>
+        </div>
+        <div class="article-preview-card">
+            <a href="{% url 'blog' %}#article-2" class="text-decoration-none">
+                <h5 class="mb-1">The Power of Expressive Writing: Why Journaling Works</h5>
+                <p class="mb-0 text-muted small">Understanding the therapeutic benefits backed by research.</p>
+                <small>Reflection</small>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'blog' %}" class="btn btn-outline-custom btn-lg">View All Articles</a>
+        </div>
+
+    </main>
+</div>
+{% endblock main %}

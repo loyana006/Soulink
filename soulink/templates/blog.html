@@ -1,0 +1,80 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        
+        <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">Mental Wellness Blog</h2>
+        <p class="lead text-muted mb-4">Read articles, tips, and guides from experts and the community.</p>
+
+        <div class="row">
+            <div class="col-lg-8">
+
+                <div class="article-preview-card p-4">
+                    <a href="#" class="text-decoration-none d-block">
+                        <h3 class="h4 mb-2" style="color: var(--color-pink);">Understanding the Link Between Sleep and Mood</h3>
+                        <p class="mb-2 text-muted">A deep dive into how better sleep hygiene can dramatically improve your emotional stability.</p>
+                        <small class="text-secondary fw-bold me-3"><i class="fas fa-calendar-alt me-1"></i> Oct 28, 2025</small>
+                        <small class="text-secondary fw-bold"><i class="fas fa-tag me-1"></i> Sleep, Self-Care</small>
+                    </a>
+                </div>
+
+                <div class="article-preview-card p-4">
+                    <a href="#" class="text-decoration-none d-block">
+                        <h3 class="h4 mb-2" style="color: var(--color-pink);">Practicing Digital Minimalism for a Calmer Mind</h3>
+                        <p class="mb-2 text-muted">Simple steps to reduce screen time and focus on real-world connections and present moments.</p>
+                        <small class="text-secondary fw-bold me-3"><i class="fas fa-calendar-alt me-1"></i> Oct 21, 2025</small>
+                        <small class="text-secondary fw-bold"><i class="fas fa-tag me-1"></i> Mindfulness, Tech Detox</small>
+                    </a>
+                </div>
+                
+                <div class="article-preview-card p-4">
+                    <a href="#" class="text-decoration-none d-block">
+                        <h3 class="h4 mb-2" style="color: var(--color-pink);">How to Set Healthy Emotional Boundaries</h3>
+                        <p class="mb-2 text-muted">Learning to say 'no' is a form of self-care. Here's a guide to establishing strong personal limits.</p>
+                        <small class="text-secondary fw-bold me-3"><i class="fas fa-calendar-alt me-1"></i> Oct 15, 2025</small>
+                        <small class="text-secondary fw-bold"><i class="fas fa-tag me-1"></i> Relationships, Growth</small>
+                    </a>
+                </div>
+                
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-custom mb-4" style="background-color: var(--color-accent-soft);">
+                    <h4 class="h5 mb-3" style="color: var(--color-teal);"><i class="fas fa-search me-2"></i> Search & Topics</h4>
+                    <input type="text" class="form-control-custom mb-3" placeholder="Search the blog...">
+                    
+                    <h5 class="h6 mt-3" style="color: var(--color-pink);">Popular Categories</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-dark">Anxiety Management (12)</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Journaling Tips (8)</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Stress Relief (15)</a></li>
+                        <li><a href="#" class="text-decoration-none text-dark">Mindfulness (10)</a></li>
+                    </ul>
+                </div>
+
+                <div class="daily-focus-card">
+                    <h4 class="mb-2">Thought of the Week</h4>
+                    <blockquote class="blockquote mb-0">
+                        <p class="mb-0 fw-bold">"The best view comes after the hardest climb."</p>
+                        <footer class="blockquote-footer">Positive Psychology</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+{% endblock main %}

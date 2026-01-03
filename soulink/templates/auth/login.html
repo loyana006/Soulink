@@ -1,0 +1,39 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<section class="container auth-wrapper">
+    <div class="auth-card">
+        <h2>Welcome Back!</h2>
+        <form method="POST"> 
+            {% csrf_token %}
+            <p class="text-center">
+                {% if msg %}
+                    {{ msg }}
+                {% endif %}
+            </p>
+            <div class="mb-3">
+                <label for="loginEmail" class="form-label">Email/Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div class="mb-4">
+                <label for="loginPassword" class="form-label">Password</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary-custom btn-lg">Login</button>
+            </div>
+            
+            <p class="auth-footer-text text-center">
+                <a href="#" style="color: var(--color-teal);">Forgot Password?</a>
+            </p>
+            
+            <p class="auth-footer-text text-center">
+                Don't have an account? <a href="{% url 'signup' %}" style="color: var(--color-pink); font-weight: 600;">Sign Up</a>
+            </p>
+        </form>
+    </div>
+</section>
+{% endblock main %}

@@ -1,0 +1,155 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<style>
+    .profile-card-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        /* Applying border from theme colors */
+        border: 5px solid var(--color-pink) !important; 
+    }
+
+    /* Styling the List Group to look like the sidebar nav links for consistency */
+    .profile-nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        color: var(--color-text-dark);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: background-color 0.2s, color 0.2s;
+        font-weight: 600;
+    }
+
+    .profile-nav-link:hover {
+        background-color: var(--color-accent-soft); 
+        color: var(--color-teal);
+    }
+
+    .profile-nav-link.active {
+        background-color: var(--color-teal); /* Using Teal for active tab highlight */
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 128, 128, 0.3);
+        border: none; /* Override default Bootstrap border */
+    }
+</style>
+
+<div class="container py-5">
+    <h1 class="mb-4" style="color: var(--color-teal);">Account Management</h1>
+
+    <div class="row">
+        
+        <div class="col-md-3">
+            <div class="list-group" id="list-tab" role="tablist">
+                <a class="profile-nav-link active" id="list-profile-list" data-bs-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile">
+                    <i class="fas fa-user me-2"></i> Profile
+                </a>
+                <a class="profile-nav-link" id="list-settings-list" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings">
+                    <i class="fas fa-cog me-2"></i> Settings
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content" id="nav-tabContent">
+
+                <div class="tab-pane fade show active" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+                    <div class="card-custom shadow-sm p-4">
+                        <h2 class="card-title mb-4" style="color: var(--color-pink);">Your Anonymous Profile</h2>
+                        <hr>
+
+                        <div class="text-center mb-4">
+                            <img src="placeholder-profile.png" alt="Profile Picture" class="rounded-circle mb-3 profile-card-img">
+                            <h3 class="card-title" style="color: var(--color-teal);">@SoulinkUser123</h3>
+                            <p class="text-muted">A safe space to express, reflect, and heal.</p>
+                        </div>
+                        
+                        <h4 class="mt-4 border-bottom pb-2" style="color: var(--color-teal);"><i class="fas fa-chart-line me-2"></i> Activity Summary</h4>
+                        <div class="row text-center mb-4">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded shadow-sm">
+                                    <p class="h4" style="color: var(--color-pink);">15</p>
+                                    <small class="text-muted">Blog Posts</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded shadow-sm">
+                                    <p class="h4" style="color: var(--color-pink);">45</p>
+                                    <small class="text-muted">Journal Entries</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded shadow-sm">
+                                    <p class="h4" style="color: var(--color-pink);">7 Days</p>
+                                    <small class="text-muted">Current Streak</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="mt-4 border-bottom pb-2" style="color: var(--color-teal);"><i class="fas fa-info-circle me-2"></i> Account Details</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Email:</strong> `loyanaparajuli57@gmail.com` <span class="badge bg-success float-end">Verified</span></li>
+                            <li class="list-group-item"><strong>Date Joined:</strong> December 4, 2025</li>
+                        </ul>
+
+                        <div class="text-end mt-4">
+                            <button class="btn btn-outline-custom" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings">
+                                <i class="fas fa-edit me-1"></i> Go to Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
+                    
+                    <div class="card-custom mb-4 shadow-sm">
+                        <div class="card-header bg-warning text-dark p-3" style="background-color: var(--color-accent-soft) !important;">
+                            <h5 style="color: var(--color-teal);"><i class="fas fa-lock me-2"></i> Security: Change Password</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="currentPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="newPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirmNewPassword" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card-custom shadow-sm">
+                        <div class="card-header p-3" style="background-color: var(--color-teal) !important; color: white;">
+                            <h5><i class="fas fa-shield-alt me-2"></i> Privacy and Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="anonToggle" checked>
+                                <label class="form-check-label" for="anonToggle">Remain Anonymous in Blog Posts</label>
+                                <small class="d-block text-muted">Your identity will be masked when posting to the community blog.</small>
+                            </div>
+                            <div class="form-check form-switch mb-4">
+                                <input class="form-check-input" type="checkbox" id="dataCollectionToggle">
+                                <label class="form-check-label" for="dataCollectionToggle">Allow AI Chatbot to improve from anonymized data</label>
+                                <small class="d-block text-muted">Helps improve the support model. Your data remains private.</small>
+                            </div>
+                            <hr>
+                            <button type="button" class="btn btn-outline-danger">Download My Data</button>
+                            <button type="button" class="btn btn-danger float-end">Deactivate Account</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}

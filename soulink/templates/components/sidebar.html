@@ -1,0 +1,32 @@
+<aside class="dashboard-sidebar d-flex flex-column">
+    <nav class="flex-grow-1">
+        <ul class="list-unstyled">
+            <li class="mb-2"><a href="{% url 'dashboard' %}" class="sidebar-nav-link {% if 'dashboard' in request.path %} active {% endif %}">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a></li>
+            <li class="mb-2"><a href="{% url 'journal' %}" class="sidebar-nav-link {% if 'journal' in request.path %} active {% endif %}">
+                <i class="fas fa-book-open me-2"></i> Private Journal
+            </a></li>
+            <li class="mb-2"><a href="{% url 'chatbot' %}" class="sidebar-nav-link {% if 'chatbot' in request.path %} active {% endif %}">
+                <i class="fas fa-robot me-2"></i> Chat with Yana
+            </a></li>
+            <li class="mb-2"><a href="{% url 'confessionals' %}" class="sidebar-nav-link {% if 'confessionals' in request.path %} active {% endif %}">
+                <i class="fas fa-users me-2"></i> Confessionals
+            </a></li>
+            <li class="mb-2"><a href="{% url 'blog' %}" class="sidebar-nav-link {% if 'blog' in request.path %} active {% endif %}">
+                <i class="fas fa-feather-alt me-2"></i> Mental Health Blog
+            </a></li>
+        </ul>
+        
+        <hr style="border-color: rgba(0, 0, 0, 0.1);">
+        
+        <ul class="list-unstyled">
+            <li class="mb-2"><a href="{% url 'my_profile' %}" class="sidebar-nav-link">
+                <i class="fas fa-cog me-2"></i> Profile & Settings
+            </a></li>
+            <li class="mb-2"><a href="{% url 'support' %}" class="sidebar-nav-link">
+                <i class="fas fa-life-ring me-2"></i> Support
+            </a></li>
+        </ul>
+    </nav>
+</aside>

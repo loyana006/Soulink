@@ -1,0 +1,67 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        
+        <h2 class="section-title text-start mb-2" style="color: var(--color-pink);">Anonymous Confessionals</h2>
+        <p class="lead text-muted mb-4">Share your truth without fear of judgment. You are not alone.</p>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card-custom mb-4">
+                    <h4 class="card-title-main" style="color: var(--color-teal);">Post Title: Feeling Overwhelmed by Studies</h4>
+                    <small class="text-muted">Posted 2 hours ago | Anonymous User</small>
+                    <p class="mt-2">I just wanted to vent. I feel like I'm drowning in my workload. Every time I try to focus, my mind wanders to all the things I haven't done. Does anyone else feel this way? How do you cope with the pressure?</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="badge bg-secondary">#Stress</span>
+                        <div>
+                            <i class="fas fa-heart text-danger me-2"></i> 15 Supports
+                            <i class="fas fa-comment ms-3 me-2" style="color: var(--color-teal);"></i> 7 Replies
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-custom mb-4">
+                    <h4 class="card-title-main" style="color: var(--color-teal);">A note on loneliness</h4>
+                    <small class="text-muted">Posted 1 day ago | Anonymous User</small>
+                    <p class="mt-2">It's hard to admit, but I'm incredibly lonely. Even when I'm surrounded by people, I feel isolated. I don't know how to reach out. Thanks for letting me just type this out.</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="badge bg-secondary">#Loneliness</span>
+                        <div>
+                            <i class="fas fa-heart text-danger me-2"></i> 45 Supports
+                            <i class="fas fa-comment ms-3 me-2" style="color: var(--color-teal);"></i> 21 Replies
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+            <div class="col-lg-4">
+                <div class="card-custom" style="background-color: var(--color-accent-soft);">
+                    <h4 class="h5 mb-3" style="color: var(--color-pink);"><i class="fas fa-pencil-alt me-2"></i> Post Your Confession</h4>
+                    <form action="/api/post-confessional" method="POST">
+                        <input type="text" class="form-control-custom mb-3" placeholder="A short title for your post" required>
+                        <textarea class="form-control-custom mb-3" rows="5" placeholder="Share your feelings, story, or question anonymously..."></textarea>
+                        <select class="form-control-custom mb-3">
+                            <option value="" disabled selected>Select a Topic Tag</option>
+                            <option>Stress</option>
+                            <option>Anxiety</option>
+                            <option>Depression</option>
+                            <option>Relationship Issues</option>
+                            <option>Other</option>
+                        </select>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="anonymousCheck" checked disabled>
+                            <label class="form-check-label" for="anonymousCheck">Post Anonymously (Default)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">Publish Confession</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+{% endblock main %}

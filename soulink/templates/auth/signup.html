@@ -1,0 +1,47 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<section class="container auth-wrapper">
+    <div class="auth-card">
+        <h2>Create Your Account</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                {{ form.username }}
+                <!-- <input type="text" class="form-control form-control-custom" id="username" name="username" required> -->
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                {{ form.email }}
+                <!-- <input type="email" class="form-control form-control-custom" id="email" name="email" aria-describedby="emailHelp" required> -->
+                <div id="emailHelp" class="form-text">We value your privacy. Your email is for account management only.</div>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                {{ form.password1 }}
+                <!-- <input type="password" class="form-control form-control-custom" id="password" name="password" required> -->
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                <!-- <input type="password" class="form-control form-control-custom" id="password" name="password" required> -->
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary-custom btn-lg">Sign Up</button>
+            </div>
+            
+            <p class="auth-footer-text text-center">
+                By signing up, you agree to our <a href="#" style="color: var(--color-teal);">Terms of Service</a>.
+            </p>
+            
+            <p class="auth-footer-text text-center">
+                Already have an account? <a href="{% url 'login' %}" style="color: var(--color-pink); font-weight: 600;">Log In</a>
+            </p>
+        </form>
+    </div>
+</section>
+
+{% endblock main %}

@@ -1,0 +1,89 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<style>
+    /* Yana Chat Specific Styles */
+    .chat-window {
+        height: 75vh;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--color-accent-soft);
+        border-radius: 15px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .chat-messages {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: var(--color-light-mint);
+    }
+
+    .chat-input {
+        padding: 15px;
+        border-top: 1px solid var(--color-accent-soft);
+    }
+
+    .yana-message, .user-message {
+        margin-bottom: 1rem;
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        line-height: 1.5;
+    }
+
+    .yana-message {
+        background-color: var(--color-accent-soft);
+        color: var(--color-text-dark);
+        align-self: flex-start;
+        margin-right: auto;
+    }
+
+    .user-message {
+        background-color: var(--color-pink);
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+</style>
+
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        
+        <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">Your AI Companion: Yana</h2>
+        <p class="lead text-muted mb-4">A supportive, judgment-free space to chat anytime you need.</p>
+
+        <div class="chat-window">
+            <div class="chat-messages d-flex flex-column">
+                <div class="yana-message">
+                    Hello! I'm Yana, your emotional support companion. I'm here to listen to you without judgment. How are you feeling today?
+                </div>
+                
+                <div class="user-message">
+                    I'm feeling a bit anxious about a presentation tomorrow.
+                </div>
+
+                <div class="yana-message">
+                    That sounds stressful. It's completely normal to feel anxious before a big event. Could you tell me more about what specifically is making you feel anxious about the presentation?
+                </div>
+
+            </div>
+            
+            <div class="chat-input">
+                <form action="/api/chat-with-yana" method="POST" class="d-flex">
+                    <input type="text" class="form-control-custom me-2" placeholder="Type your message here..." style="flex-grow: 1;">
+                    <button type="submit" class="btn btn-primary-custom" style="border-radius: 10px;">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </form>
+                <small class="text-muted mt-2 d-block text-center">Remember, Yana is an AI and not a substitute for professional therapy.</small>
+            </div>
+        </div>
+
+    </main>
+</div>
+{% endblock main %}
