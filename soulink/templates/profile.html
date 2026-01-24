@@ -1,4 +1,5 @@
 {% extends 'components/base.html' %}
+{% load static %}
 
 {% block main %}
 <style>
@@ -60,8 +61,8 @@
                         <hr>
 
                         <div class="text-center mb-4">
-                            <img src="placeholder-profile.png" alt="Profile Picture" class="rounded-circle mb-3 profile-card-img">
-                            <h3 class="card-title" style="color: var(--color-teal);">@SoulinkUser123</h3>
+                            <img src="{% static 'images/user/default-avatar.png' %}" alt="Profile Picture" class="rounded-circle mb-3 profile-card-img">
+                            <h3 class="card-title" style="color: var(--color-teal);">@{{ user.username }}</h3>
                             <p class="text-muted">A safe space to express, reflect, and heal.</p>
                         </div>
                         
@@ -69,19 +70,37 @@
                         <div class="row text-center mb-4">
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">15</p>
+                                    <p class="h4" style="color: var(--color-pink);">
+                                        {% if data.total_blog_posts %}
+                                            {{ data.total_blog_posts }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </p>
                                     <small class="text-muted">Blog Posts</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">45</p>
+                                    <p class="h4" style="color: var(--color-pink);">
+                                        {% if data.total_journal_entries %}
+                                            {{ data.total_journal_entries }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </p>
                                     <small class="text-muted">Journal Entries</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">7 Days</p>
+                                    <p class="h4" style="color: var(--color-pink);">
+                                        {% if data.current_streak %}
+                                            {{ data.current_streak }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </p>
                                     <small class="text-muted">Current Streak</small>
                                 </div>
                             </div>
@@ -89,8 +108,15 @@
 
                         <h4 class="mt-4 border-bottom pb-2" style="color: var(--color-teal);"><i class="fas fa-info-circle me-2"></i> Account Details</h4>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Email:</strong> `loyanaparajuli57@gmail.com` <span class="badge bg-success float-end">Verified</span></li>
-                            <li class="list-group-item"><strong>Date Joined:</strong> December 4, 2025</li>
+                            <li class="list-group-item">
+                                <strong>Email:</strong> {{ user.email }}
+                                {% if user.is_verified %}
+                                    <span class="badge bg-success float-end">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning float-end">Not Verified</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item"><strong>Date Joined:</strong> {{ user.date_joined }} </li>
                         </ul>
 
                         <div class="text-end mt-4">

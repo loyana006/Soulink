@@ -24,7 +24,6 @@ class LoginForm(forms.Form):
                 "id": "loginPassword",
                 "class": "form-control form-control-custom",
             }
-
         ),
     )
 

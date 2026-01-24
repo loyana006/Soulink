@@ -25,9 +25,5 @@ def blog(request):
     return render(request, "blog.html")
 
 
-def journal(request):
-    return render(request, "journal.html")
-
-
 def dashboard(request):
     return render(request, "dashboard.html")

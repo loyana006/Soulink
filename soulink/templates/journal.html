@@ -1,172 +1,350 @@
 {% extends 'components/base.html' %}
-
 {% block main %}
-<div class="dashboard-container">
-    {% include 'components/sidebar.html' %}
-
-    <main class="dashboard-main-content">
-        
-        <section id="journal" class="container-fluid p-0 space-y-8">
-
-            <div class="journal-header mb-5 shadow-sm">
-                <h1 class="text-4xl font-extrabold tracking-wide" style="color: var(--color-pink);">PRIVATE JOURNAL</h1>
-            </div>
-
-            <div class="row g-4">
-
-                <div class="col-lg-8 space-y-4">
-                    <h2 class="h3 fw-bold mb-3 d-flex align-items-center" style="color: var(--color-teal);">
-                        <i class="fas fa-book-open fa-lg me-2"></i> 
-                        Your Private Space
-                    </h2>
-                    
-                    <div class="card-custom p-4 mb-4">
-                        <h3 class="h4 font-weight-bold mb-3" style="color: var(--color-pink);">Start a New Entry</h3>
-                        <p class="text-sm text-muted mb-4">
-                            Instructions: Focus on your core emotions, experiences, and thoughts for the day. Use expressive writing to process feelings.
-                        </p>
-                        <form id="new-journal-entry">
-                            <input type="text" placeholder="Title of your entry (e.g., A Day of Small Wins)" class="mb-3 form-control-custom">
-                            <textarea rows="8" placeholder="Start writing here... What happened today? How did it make you feel? What did you learn?" class="mb-4 form-control-custom"></textarea>
-                            <button type="submit" class="btn btn-primary-custom px-4 py-2 fw-semibold">
-                                <i class="fas fa-save me-2"></i> Save Entry Securely
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="row g-3">
-                        
-                        <div class="col-md-4 d-flex flex-column space-y-3">
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">DAILY AFFIRMATION:</h4>
-                                <input type="text" placeholder="I am enough." class="text-sm form-control-custom">
-                            </div>
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">CURRENT MOOD:</h4>
-                                <input type="text" placeholder="Grateful ☀️" class="text-sm form-control-custom">
-                            </div>
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">MY VALUES:</h4>
-                                <input type="text" placeholder="Growth, Honesty" class="text-sm form-control-custom">
-                             </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="card-custom p-3 h-100 d-flex justify-content-center align-items-center overflow-hidden">
-                                <img src="https://placehold.co/200x300/e9e7e0/635a50?text=Inspirational+Image" alt="Inspirational Image Placeholder" class="img-fluid rounded-lg">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4 d-flex flex-column space-y-3">
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">MY STRENGTHS:</h4>
-                                <input type="text" placeholder="Resilience" class="text-sm form-control-custom">
-                            </div>
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">MY BELIEFS:</h4>
-                                <input type="text" placeholder="Things will get better." class="text-sm form-control-custom">
-                            </div>
-                            <div class="card-custom p-3 flex-fill">
-                                <h4 class="fw-bold fs-6 mb-2">WHAT MAKES ME UNIQUE:</h4>
-                                <input type="text" placeholder="My perspective." class="text-sm form-control-custom">
-                            </div>
-                        </div>
-                    </div>
+    <div class="dashboard-container">
+        {% include 'components/sidebar.html' %}
+        <main class="dashboard-main-content">
+            <section id="journal" class="container-fluid p-0 space-y-8">
+                <div class="journal-header mb-5 shadow-sm">
+                    <h1 class="text-4xl font-extrabold tracking-wide"
+                        style="color: var(--color-pink)">PRIVATE JOURNAL</h1>
                 </div>
-
-                <div class="col-lg-4 space-y-4">
-                    
-                    <div class="card-custom p-4">
-                        <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center" style="color: var(--color-pink);">
-                            <i class="fas fa-bolt me-2"></i>
-                            Quick Actions
-                        </h3>
-                        <ul class="list-unstyled space-y-2 text-muted small">
-                            <li><a href="#" class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add today's daily review</a></li>
-                            <li><a href="#" class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a monthly review</a></li>
-                            <li><a href="#" class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a gratitude journal</a></li>
-                            <li><a href="#" class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a manifestation journal</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="card-custom p-4">
-                        <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center">
-                            <i class="fas fa-bell me-2 text-warning"></i>
-                            Notification Center
-                        </h3>
-                        
-                        <div class="border-bottom pb-3 mb-3">
-                            <p class="font-semibold text-sm text-dark mb-1 d-flex align-items-center">
-                                <i class="fas fa-calendar-alt fa-sm me-2" style="color: var(--color-teal);"></i>
-                                Today is Thursday, December 19, 2024
+                <div class="row g-4">
+                    <div class="col-lg-8 space-y-4">
+                        <h2 class="h3 fw-bold mb-3 d-flex align-items-center"
+                            style="color: var(--color-teal)">
+                            <i class="fas fa-book-open fa-lg me-2"></i>
+                            Your Private Space
+                        </h2>
+                        <div class="card-custom p-4 mb-4">
+                            <h3 class="h4 font-weight-bold mb-3" style="color: var(--color-pink);">Start a New Entry</h3>
+                            <p class="text-sm text-muted mb-4">
+                                Instructions: Focus on your core emotions, experiences, and thoughts for the day. Use expressive writing to process feelings.
                             </p>
-                            <p class="text-sm text-danger font-weight-bold d-flex align-items-center">
-                                <i class="fas fa-exclamation-triangle fa-sm me-1"></i>
-                                REMINDERS: You didn't journal yet today.
-                            </p>
+                            <form action="{% url 'journal' %}" method="POST" id="new-journal-entry">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ form.title }}
+                                    {{ from.title.errors }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.entry }}
+                                    {{ form.entry.errors }}
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom px-4 py-2 fw-semibold">
+                                    <i class="fas fa-save me-2"></i> Save Entry Securely
+                                </button>
+                            </form>
                         </div>
-                        
-                        <div>
-                            <p class="font-weight-bold text-sm mb-2" style="color: var(--color-teal);">COMPLETED ENTRIES:</p>
-                            <ul class="list-unstyled space-y-1 text-xs text-muted">
-                                <li class="text-success small">✓ You've completed 2 daily reviews this week.</li>
-                                <li class="small">You've completed 1 monthly review in this date.</li>
-                                <li class="small">You've completed 3 weekly reviews in this date.</li>
-                                <li class="small">You've completed 5 gratitude journals to this date.</li>
+                        <div class="row g-3">
+                            <div class="col-md-4 d-flex flex-column space-y-3">
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">DAILY AFFIRMATION:</h4>
+                                    <input type="text"
+                                           placeholder="I am enough."
+                                           class="text-sm form-control-custom">
+                                </div>
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">CURRENT MOOD:</h4>
+                                    <input type="text"
+                                           placeholder="Grateful ☀️"
+                                           class="text-sm form-control-custom">
+                                </div>
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">MY VALUES:</h4>
+                                    <input type="text"
+                                           placeholder="Growth, Honesty"
+                                           class="text-sm form-control-custom">
+ 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card-custom p-3 h-100 d-flex justify-content-center align-items-center overflow-hidden">
+                                    <img src="https://placehold.co/200x300/e9e7e0/635a50?text=Inspirational+Image"
+                                         alt="Inspirational Image Placeholder"
+                                         class="img-fluid rounded-lg">
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex flex-column space-y-3">
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">MY STRENGTHS:</h4>
+                                    <input type="text"
+                                           placeholder="Resilience"
+                                           class="text-sm form-control-custom">
+                                </div>
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">MY BELIEFS:</h4>
+                                    <input type="text"
+                                           placeholder="Things will get better."
+                                           class="text-sm form-control-custom">
+                                </div>
+                                <div class="card-custom p-3 flex-fill">
+                                    <h4 class="fw-bold fs-6 mb-2">WHAT MAKES ME UNIQUE:</h4>
+                                    <input type="text"
+                                           placeholder="My perspective."
+                                           class="text-sm form-control-custom">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 space-y-4">
+                        <div class="card-custom p-4">
+                            <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center"
+                                style="color: var(--color-pink)">
+                                <i class="fas fa-bolt me-2"></i>
+                                Quick Actions
+                            </h3>
+                            <ul class="list-unstyled space-y-2 text-muted small">
+                                <li>
+                                    <a href="#"
+                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add today's daily review</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a monthly review</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a gratitude journal</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a manifestation journal</a>
+                                </li>
                             </ul>
                         </div>
+                        <div class="card-custom p-4">
+                            <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center">
+                                <i class="fas fa-bell me-2 text-warning"></i>
+                                Notification Center
+                            </h3>
+                            <div class="border-bottom pb-3 mb-3">
+                                <p class="font-semibold text-sm text-dark mb-1 d-flex align-items-center">
+                                    <i class="fas fa-calendar-alt fa-sm me-2"
+                                       style="color: var(--color-teal)"></i>
+                                    Today is Thursday, December 19, 2024
+                                </p>
+                                <p class="text-sm text-danger font-weight-bold d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle fa-sm me-1"></i>
+                                    REMINDERS: You didn't journal yet today.
+                                </p>
+                            </div>
+                            <div>
+                                <p class="font-weight-bold text-sm mb-2"
+                                   style="color: var(--color-teal)">COMPLETED ENTRIES:</p>
+                                <ul class="list-unstyled space-y-1 text-xs text-muted">
+                                    <li class="text-success small">✓ You've completed 2 daily reviews this week.</li>
+                                    <li class="small">You've completed 1 monthly review in this date.</li>
+                                    <li class="small">You've completed 3 weekly reviews in this date.</li>
+                                    <li class="small">You've completed 5 gratitude journals to this date.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-            </div>
-            
-            <div class="card-custom mt-5">
-                <h2 class="h4 font-weight-bold mb-4">Past Entries</h2>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded hover-bg-light transition cursor-pointer">
-                            <p class="text-sm text-muted mb-1">Dec 18, 2024</p>
-                            <h4 class="fw-semibold small mb-0">Letting Go of Yesterday's Stress</h4>
+                <div class="card-custom mt-5">
+                    <h2 class="h4 font-weight-bold mb-4">Past Entries</h2>
+                    <div class="row g-3">
+                        {% if past_entries %}
+                            {% for entry in past_entries %}
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded hover-bg-light transition">
+                                    <p class="text-sm text-muted mb-1">{{ entry.entry_date }}</p>
+                                    <h4 class="fw-semibold small mb-3">{{ entry.title }}</h4>
+                                <a href="#" onclick="fetch_journal_entry({{ entry.id }})" class="link-offset-2 link-underline link-underline-opacity-0">
+                                        View Entry
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="border rounded p-4">
+                            <p class="text-center fs-2">No Entries</p>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded hover-bg-light transition cursor-pointer">
-                            <p class="text-sm text-muted mb-1">Dec 17, 2024</p>
-                            <h4 class="fw-semibold small mb-0">The Power of Small Victories</h4>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded hover-bg-light transition cursor-pointer">
-                            <p class="text-sm text-muted mb-1">Dec 16, 2024</p>
-                            <h4 class="fw-semibold small mb-0">Reflecting on My Core Beliefs</h4>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Journal Entry Modal -->
+    <div class="modal fade" id="journalEntryModal" tabindex="-1" aria-labelledby="journalEntryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--color-pink); color: white;">
+                    <h5 class="modal-title" id="journalEntryModalLabel">
+                        <i class="fas fa-book-open me-2"></i>
+                        <span id="modalEntryTitle">Loading...</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <small class="text-muted" id="modalEntryDate"></small>
+                    </div>
+                    <div class="journal-content p-3 border rounded" style="min-height: 200px; background-color: #f8f9fa;">
+                        <p id="modalEntryContent" class="mb-0" style="white-space: pre-wrap;">Loading content...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="editEntryBtn" style="background-color: var(--color-teal); border-color: var(--color-teal);">
+                        <i class="fas fa-edit me-1"></i> Edit Entry
+                    </button>
+                    <button type="button" class="btn btn-danger" id="deleteEntryBtn">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
 
-        </section>
-    </main>
-</div>
-
-<script>
-    // Custom Alert function to simulate front-end interaction (using Bootstrap/JQuery if available, but staying vanilla for now)
-    function showPlaceholderAlert(title, message) {
-        alert(`Soulink Notification - ${title}\n\n${message}`);
-    }
-
-    // Small interactivity for form submission placeholder
-    document.getElementById('new-journal-entry').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const titleInput = this.querySelector('input[type="text"]').value;
-        const content = this.querySelector('textarea').value;
+    <script>
+    let currentEntryId = null;
+    
+    async function fetch_journal_entry(id) {
+        currentEntryId = id;
         
-        if (content.trim().length === 0) {
-             showPlaceholderAlert('Action Failed', 'Journal entry cannot be empty.');
-             return;
+        // Show loading state in modal
+        document.getElementById('modalEntryTitle').textContent = 'Loading...';
+        document.getElementById('modalEntryContent').textContent = 'Loading content...';
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('journalEntryModal'));
+        modal.show();
+        
+        try {
+            // Make the API call
+            const response = await fetch(`journal-entry/${id}/`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log(data)
+            
+            // Populate modal with data
+            document.getElementById('modalEntryTitle').textContent = data.title;
+            document.getElementById('modalEntryContent').textContent = data.entry;
+            
+            // Format and display date if available
+            if (data.created_at) {
+                const date = new Date(data.created_at);
+                document.getElementById('modalEntryDate').textContent = 
+                    `Created: ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+            
+            if (data.updated_at) {
+                const updatedDate = new Date(data.updated_at);
+                const dateElement = document.getElementById('modalEntryDate');
+                dateElement.textContent += ` | Updated: ${updatedDate.toLocaleDateString()} at ${updatedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+            
+        } catch (error) {
+            console.error('Error fetching journal entry:', error);
+            
+            // Show error in modal
+            document.getElementById('modalEntryTitle').textContent = 'Error';
+            document.getElementById('modalEntryContent').textContent = 
+                `Failed to load journal entry. Please try again.\n\nError: ${error.message}`;
         }
-
-        alert('Entry Saved (Placeholder)! Title: ' + (titleInput || 'No Title') + ' - Content Saved.');
-        this.reset();
+    }
+    
+    // Add event listeners for modal buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Edit button handler
+        document.getElementById('editEntryBtn').addEventListener('click', function() {
+            if (currentEntryId) {
+                // You can implement edit functionality here
+                alert(`Edit entry with ID: ${currentEntryId}`);
+                // Example: window.location.href = `/journal/edit/${currentEntryId}/`;
+            }
+        });
+        
+        // Delete button handler
+        document.getElementById('deleteEntryBtn').addEventListener('click', function() {
+            if (currentEntryId && confirm('Are you sure you want to delete this journal entry?')) {
+                deleteJournalEntry(currentEntryId);
+            }
+        });
     });
-</script>
+    
+    // Function to delete journal entry
+    async function deleteJournalEntry(entryId) {
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            const response = await fetch(`journal-entry/${entryId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('journalEntryModal')).hide();
+                
+                // Show success message
+                alert('Journal entry deleted successfully!');
+                
+                // Reload the page to update the entries list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete entry');
+            }
+            
+        } catch (error) {
+            console.error('Error deleting journal entry:', error);
+            alert(`Error: ${error.message}`);
+        }
+    }
+    
+    </script>
+    
+    <!-- Add some CSS for better modal styling -->
+    <style>
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .modal-header {
+        border-radius: 15px 15px 0 0;
+        padding: 1.2rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+    }
+    
+    .journal-content {
+        font-size: 1rem;
+        line-height: 1.6;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Loading animation */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .loading {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    </style>
 {% endblock main %}
