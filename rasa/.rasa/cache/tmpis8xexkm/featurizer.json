@@ -1,0 +1,67 @@
+{
+  "type": "IntentMaxHistoryTrackerFeaturizer",
+  "state_featurizer": {
+    "action_texts": [],
+    "entity_tag_specs": [],
+    "feature_states": {
+      "intent": {
+        "affirm": 0,
+        "anxious": 1,
+        "ask_advice": 2,
+        "back": 3,
+        "bot_challenge": 4,
+        "deny": 5,
+        "goodbye": 6,
+        "grateful": 7,
+        "greet": 8,
+        "mood_great": 9,
+        "mood_unhappy": 10,
+        "need_help": 11,
+        "nlu_fallback": 12,
+        "out_of_scope": 13,
+        "restart": 14,
+        "sad": 15,
+        "session_start": 16,
+        "stressed": 17,
+        "tell_story": 18
+      },
+      "action_name": {
+        "action_listen": 0,
+        "action_restart": 1,
+        "action_session_start": 2,
+        "action_default_fallback": 3,
+        "action_deactivate_loop": 4,
+        "action_revert_fallback_events": 5,
+        "action_default_ask_affirmation": 6,
+        "action_default_ask_rephrase": 7,
+        "action_two_stage_fallback": 8,
+        "action_unlikely_intent": 9,
+        "action_back": 10,
+        "...": 11,
+        "action_extract_slots": 12,
+        "utter_anxious": 13,
+        "utter_ask_advice": 14,
+        "utter_bot_challenge": 15,
+        "utter_cheer_up": 16,
+        "utter_default": 17,
+        "utter_goodbye": 18,
+        "utter_grateful": 19,
+        "utter_greet": 20,
+        "utter_happy": 21,
+        "utter_help": 22,
+        "utter_iamabot": 23,
+        "utter_sad": 24,
+        "utter_stressed": 25,
+        "utter_tell_story": 26
+      },
+      "entities": {
+        "emotion": 0,
+        "situation": 1
+      },
+      "slots": {},
+      "active_loop": {}
+    }
+  },
+  "remove_duplicates": true,
+  "max_history": 5
+}

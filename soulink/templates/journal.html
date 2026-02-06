@@ -1,350 +1,533 @@
 {% extends 'components/base.html' %}
 {% block main %}
-    <div class="dashboard-container">
-        {% include 'components/sidebar.html' %}
-        <main class="dashboard-main-content">
-            <section id="journal" class="container-fluid p-0 space-y-8">
-                <div class="journal-header mb-5 shadow-sm">
-                    <h1 class="text-4xl font-extrabold tracking-wide"
-                        style="color: var(--color-pink)">PRIVATE JOURNAL</h1>
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+    <main class="dashboard-main-content">
+        <section id="journal" class="container-fluid p-0 gap-4 d-flex flex-column">
+            <div class="journal-header mb-5 shadow-sm d-flex flex-wrap justify-content-between align-items-center">
+                <h1 class="display-5 fw-bold tracking-wide" style="color: var(--color-pink)">
+                    Private Journal
+                </h1>
+                <button class="btn btn-primary-custom px-4 py-2 fw-semibold" onclick="openAddEntryModal()">
+                    <i class="fas fa-plus me-2"></i> Quick Add Entry
+                </button>
+            </div>
+
+            <!-- All Journal Entries Section -->
+            <div class="card-custom mt-4">
+                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
+                    <h2 class="h4 font-weight-bold mb-0 d-flex align-items-center">
+                        <i class="fas fa-book-open me-2" style="color: var(--color-teal)"></i>
+                        All Journal Entries
+                    </h2>
+                    <form class="search-container" onsubmit="event.preventDefault();">
+                        <div class="input-group input-group-sm" style="max-width: 320px;">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-sm" placeholder="Search entries..." id="search-entries" aria-label="Search entries">
+                            <button class="btn btn-outline-secondary" type="button" id="clear-search" title="Clear search">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="row g-4">
-                    <div class="col-lg-8 space-y-4">
-                        <h2 class="h3 fw-bold mb-3 d-flex align-items-center"
-                            style="color: var(--color-teal)">
-                            <i class="fas fa-book-open fa-lg me-2"></i>
-                            Your Private Space
-                        </h2>
-                        <div class="card-custom p-4 mb-4">
-                            <h3 class="h4 font-weight-bold mb-3" style="color: var(--color-pink);">Start a New Entry</h3>
-                            <p class="text-sm text-muted mb-4">
-                                Instructions: Focus on your core emotions, experiences, and thoughts for the day. Use expressive writing to process feelings.
-                            </p>
-                            <form action="{% url 'journal' %}" method="POST" id="new-journal-entry">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    {{ form.title }}
-                                    {{ from.title.errors }}
+
+                <div class="row g-4" id="past-entries-container">
+                    {% if past_entries %}
+                        {% for entry in past_entries %}
+                        <div class="col-12 col-md-6 entry-card" data-entry-id="{{ entry.id }}">
+                            <div class="card-custom p-4 h-100 entry-card-inner">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <p class="text-sm text-muted mb-1 d-flex align-items-center">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <time datetime="{{ entry.entry_date|date:'c' }}">{{ entry.entry_date }}</time>
+                                        </p>
+                                        <h4 class="fw-semibold mb-2 text-break" style="color: var(--color-pink);">
+                                            {{ entry.title }}
+                                        </h4>
+                                    </div>
+                                    <span class="badge bg-light text-dark small">
+                                        {{ entry.word_count|default:"0" }} words
+                                    </span>
                                 </div>
-                                <div class="mb-3">
-                                    {{ form.entry }}
-                                    {{ form.entry.errors }}
+                                <div class="entry-content text-muted mb-3" style="max-height: 200px; overflow-y: auto;">
+                                    {{ entry.entry|linebreaksbr|truncatechars_html:350 }}
                                 </div>
-                                <button type="submit" class="btn btn-primary-custom px-4 py-2 fw-semibold">
-                                    <i class="fas fa-save me-2"></i> Save Entry Securely
-                                </button>
-                            </form>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-md-4 d-flex flex-column space-y-3">
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">DAILY AFFIRMATION:</h4>
-                                    <input type="text"
-                                           placeholder="I am enough."
-                                           class="text-sm form-control-custom">
-                                </div>
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">CURRENT MOOD:</h4>
-                                    <input type="text"
-                                           placeholder="Grateful ☀️"
-                                           class="text-sm form-control-custom">
-                                </div>
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">MY VALUES:</h4>
-                                    <input type="text"
-                                           placeholder="Growth, Honesty"
-                                           class="text-sm form-control-custom">
- 
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card-custom p-3 h-100 d-flex justify-content-center align-items-center overflow-hidden">
-                                    <img src="https://placehold.co/200x300/e9e7e0/635a50?text=Inspirational+Image"
-                                         alt="Inspirational Image Placeholder"
-                                         class="img-fluid rounded-lg">
-                                </div>
-                            </div>
-                            <div class="col-md-4 d-flex flex-column space-y-3">
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">MY STRENGTHS:</h4>
-                                    <input type="text"
-                                           placeholder="Resilience"
-                                           class="text-sm form-control-custom">
-                                </div>
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">MY BELIEFS:</h4>
-                                    <input type="text"
-                                           placeholder="Things will get better."
-                                           class="text-sm form-control-custom">
-                                </div>
-                                <div class="card-custom p-3 flex-fill">
-                                    <h4 class="fw-bold fs-6 mb-2">WHAT MAKES ME UNIQUE:</h4>
-                                    <input type="text"
-                                           placeholder="My perspective."
-                                           class="text-sm form-control-custom">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 space-y-4">
-                        <div class="card-custom p-4">
-                            <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center"
-                                style="color: var(--color-pink)">
-                                <i class="fas fa-bolt me-2"></i>
-                                Quick Actions
-                            </h3>
-                            <ul class="list-unstyled space-y-2 text-muted small">
-                                <li>
-                                    <a href="#"
-                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add today's daily review</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a monthly review</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a gratitude journal</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="text-decoration-none text-muted d-flex align-items-center hover-text-teal transition"><i class="fas fa-plus fa-sm me-2"></i> Add a manifestation journal</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-custom p-4">
-                            <h3 class="h5 font-weight-bold mb-3 d-flex align-items-center">
-                                <i class="fas fa-bell me-2 text-warning"></i>
-                                Notification Center
-                            </h3>
-                            <div class="border-bottom pb-3 mb-3">
-                                <p class="font-semibold text-sm text-dark mb-1 d-flex align-items-center">
-                                    <i class="fas fa-calendar-alt fa-sm me-2"
-                                       style="color: var(--color-teal)"></i>
-                                    Today is Thursday, December 19, 2024
-                                </p>
-                                <p class="text-sm text-danger font-weight-bold d-flex align-items-center">
-                                    <i class="fas fa-exclamation-triangle fa-sm me-1"></i>
-                                    REMINDERS: You didn't journal yet today.
-                                </p>
-                            </div>
-                            <div>
-                                <p class="font-weight-bold text-sm mb-2"
-                                   style="color: var(--color-teal)">COMPLETED ENTRIES:</p>
-                                <ul class="list-unstyled space-y-1 text-xs text-muted">
-                                    <li class="text-success small">✓ You've completed 2 daily reviews this week.</li>
-                                    <li class="small">You've completed 1 monthly review in this date.</li>
-                                    <li class="small">You've completed 3 weekly reviews in this date.</li>
-                                    <li class="small">You've completed 5 gratitude journals to this date.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-custom mt-5">
-                    <h2 class="h4 font-weight-bold mb-4">Past Entries</h2>
-                    <div class="row g-3">
-                        {% if past_entries %}
-                            {% for entry in past_entries %}
-                            <div class="col-md-4">
-                                <div class="p-3 border rounded hover-bg-light transition">
-                                    <p class="text-sm text-muted mb-1">{{ entry.entry_date }}</p>
-                                    <h4 class="fw-semibold small mb-3">{{ entry.title }}</h4>
-                                <a href="#" onclick="fetch_journal_entry({{ entry.id }})" class="link-offset-2 link-underline link-underline-opacity-0">
-                                        View Entry
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary quick-view-btn" data-entry-id="{{ entry.id }}" aria-label="Quick View Entry">
+                                        <i class="fas fa-eye me-1"></i> Quick View
+                                    </button>
+                                    <a href="{% url 'view_journal_entry' entry.id %}" class="btn btn-sm btn-primary-custom" aria-label="View & Analyze Entry">
+                                        <i class="fas fa-brain me-1"></i> View &amp; Analyze
                                     </a>
                                 </div>
                             </div>
-                            {% endfor %}
-                        {% else %}
-                        <div class="border rounded p-4">
-                            <p class="text-center fs-2">No Entries</p>
                         </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="col-12">
+                        <div class="border rounded p-5 text-center">
+                            <i class="fas fa-book-open fa-4x text-muted mb-4"></i>
+                            <h3 class="text-muted mb-3">No journal entries yet</h3>
+                            <p class="text-muted mb-4">Start writing your first entry to begin your journaling journey</p>
+                            <button class="btn btn-primary-custom" onclick="openAddEntryModal()">
+                                <i class="fas fa-plus me-2"></i> Create Your First Entry
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Add New Entry Modal -->
+<div class="modal fade" id="addEntryModal" tabindex="-1" aria-labelledby="addEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--color-pink); color: white;">
+                <h5 class="modal-title" id="addEntryModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Create New Journal Entry
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'journal' %}" method="POST" id="new-journal-entry-form" autocomplete="off">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted small mb-4 d-flex align-items-center">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Focus on your emotions, experiences, and thoughts today. Express yourself freely!
+                    </p>
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label fw-semibold">Entry Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger small mt-1">{{ form.title.errors }}</div>
                         {% endif %}
                     </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Journal Entry Modal -->
-    <div class="modal fade" id="journalEntryModal" tabindex="-1" aria-labelledby="journalEntryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--color-pink); color: white;">
-                    <h5 class="modal-title" id="journalEntryModalLabel">
-                        <i class="fas fa-book-open me-2"></i>
-                        <span id="modalEntryTitle">Loading...</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
                     <div class="mb-3">
-                        <small class="text-muted" id="modalEntryDate"></small>
+                        <label for="id_entry" class="form-label fw-semibold">Your Entry</label>
+                        {{ form.entry }}
+                        {% if form.entry.errors %}
+                            <div class="text-danger small mt-1">{{ form.entry.errors }}</div>
+                        {% endif %}
+                        <div class="character-counter text-muted small mt-2 text-end" id="entry-counter">
+                            0/5000 characters
+                        </div>
                     </div>
-                    <div class="journal-content p-3 border rounded" style="min-height: 200px; background-color: #f8f9fa;">
-                        <p id="modalEntryContent" class="mb-0" style="white-space: pre-wrap;">Loading content...</p>
-                    </div>
+                    <div class="auto-save-status text-muted small" id="auto-save-status"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i> Close
+                        <i class="fas fa-times me-1"></i> Cancel
                     </button>
-                    <button type="button" class="btn btn-primary" id="editEntryBtn" style="background-color: var(--color-teal); border-color: var(--color-teal);">
-                        <i class="fas fa-edit me-1"></i> Edit Entry
-                    </button>
-                    <button type="button" class="btn btn-danger" id="deleteEntryBtn">
-                        <i class="fas fa-trash me-1"></i> Delete
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-save me-2"></i> Save Entry
                     </button>
                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Journal Entry Modal (matching Add Modal design) -->
+<div class="modal fade" id="journalEntryModal" tabindex="-1" aria-labelledby="journalEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--color-pink); color: white;">
+                <h5 class="modal-title" id="journalEntryModalLabel">
+                    <i class="fas fa-book-open me-2"></i>
+                    <span id="modalEntryTitle">Loading...</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-4 d-flex align-items-center">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Reflect on your day, emotions, and thoughts with openness. 📝
+                </p>
+                <div class="mb-3">
+                    <small class="text-muted" id="modalEntryDate"></small>
+                </div>
+                <div class="journal-content p-4 border rounded" style="min-height: 200px; background-color: #f8f9fa;">
+                    <p id="modalEntryContent" class="mb-0" style="white-space: pre-wrap; line-height: 1.8;">Loading content...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary-custom" id="editEntryBtn">
+                    <i class="fas fa-edit me-1"></i> Edit Entry
+                </button>
+                <button type="button" class="btn btn-danger" id="deleteEntryBtn">
+                    <i class="fas fa-trash me-1"></i> Delete
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-    let currentEntryId = null;
-    
-    async function fetch_journal_entry(id) {
-        currentEntryId = id;
-        
-        // Show loading state in modal
-        document.getElementById('modalEntryTitle').textContent = 'Loading...';
-        document.getElementById('modalEntryContent').textContent = 'Loading content...';
-        
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('journalEntryModal'));
-        modal.show();
-        
-        try {
-            // Make the API call
-            const response = await fetch(`journal-entry/${id}/`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log(data)
-            
-            // Populate modal with data
-            document.getElementById('modalEntryTitle').textContent = data.title;
-            document.getElementById('modalEntryContent').textContent = data.entry;
-            
-            // Format and display date if available
-            if (data.created_at) {
-                const date = new Date(data.created_at);
-                document.getElementById('modalEntryDate').textContent = 
-                    `Created: ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-            }
-            
-            if (data.updated_at) {
-                const updatedDate = new Date(data.updated_at);
-                const dateElement = document.getElementById('modalEntryDate');
-                dateElement.textContent += ` | Updated: ${updatedDate.toLocaleDateString()} at ${updatedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-            }
-            
-        } catch (error) {
-            console.error('Error fetching journal entry:', error);
-            
-            // Show error in modal
-            document.getElementById('modalEntryTitle').textContent = 'Error';
-            document.getElementById('modalEntryContent').textContent = 
-                `Failed to load journal entry. Please try again.\n\nError: ${error.message}`;
+<script>
+let currentEntryId = null;
+let autoSaveTimer = null;
+
+// Open Add Entry Modal (focus input)
+function openAddEntryModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addEntryModal'));
+    modal.show();
+    setTimeout(() => {
+        const titleField = document.querySelector('#addEntryModal #id_title');
+        if (titleField) titleField.focus();
+    }, 270); // slightly faster
+}
+
+// Fetch and display journal entry (improved error-handling, accessibility)
+async function fetch_journal_entry(id) {
+    currentEntryId = id;
+    // Show loader in modal
+    const modalTitle = document.getElementById('modalEntryTitle');
+    const modalContent = document.getElementById('modalEntryContent');
+    modalTitle.textContent = 'Loading...';
+    modalContent.textContent = 'Loading content...';
+    modalTitle.classList.add('loading');
+    modalContent.classList.add('loading');
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('journalEntryModal'));
+    modal.show();
+
+    try {
+        const response = await fetch(`journal-entry/${id}/`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        modalTitle.textContent = data.title?.trim() ? data.title : 'Untitled Entry';
+        modalContent.textContent = data.entry?.trim() ? data.entry : 'No content available.';
+        modalTitle.classList.remove('loading');
+        modalContent.classList.remove('loading');
+
+        // Show pretty time
+        let datePieces = [];
+        if (data.created_at) {
+            const date = new Date(data.created_at);
+            datePieces.push(`Created: ${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`);
         }
+        if (data.updated_at && (!data.created_at || data.updated_at !== data.created_at)) {
+            const upd = new Date(data.updated_at);
+            datePieces.push(`Updated: ${upd.toLocaleDateString()} ${upd.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`);
+        }
+        document.getElementById('modalEntryDate').textContent = datePieces.join(' | ');
+
+    } catch (error) {
+        modalTitle.classList.remove('loading');
+        modalContent.classList.remove('loading');
+        modalTitle.textContent = 'Error';
+        modalContent.textContent = `Could not load entry. Try again!\n\nError: ${error.message}`;
+        console.error('Error fetching journal entry:', error);
     }
-    
-    // Add event listeners for modal buttons
-    document.addEventListener('DOMContentLoaded', function() {
-        // Edit button handler
-        document.getElementById('editEntryBtn').addEventListener('click', function() {
-            if (currentEntryId) {
-                // You can implement edit functionality here
-                alert(`Edit entry with ID: ${currentEntryId}`);
-                // Example: window.location.href = `/journal/edit/${currentEntryId}/`;
+}
+
+// Delete journal entry, handle DOM removal and toast
+async function deleteJournalEntry(entryId) {
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const response = await fetch(`journal-entry/${entryId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
             }
         });
-        
-        // Delete button handler
-        document.getElementById('deleteEntryBtn').addEventListener('click', function() {
-            if (currentEntryId && confirm('Are you sure you want to delete this journal entry?')) {
-                deleteJournalEntry(currentEntryId);
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('journalEntryModal')).hide();
+            showToast('Journal entry deleted!', 'success');
+            const deletedCard = document.querySelector(`.entry-card[data-entry-id="${entryId}"]`);
+            if (deletedCard) {
+                deletedCard.style.opacity = '0';
+                deletedCard.style.transition = 'opacity 0.3s';
+                setTimeout(() => {
+                    deletedCard.remove();
+                    if (document.querySelectorAll('.entry-card').length === 0) {
+                        document.getElementById('past-entries-container').innerHTML = `
+                            <div class="col-12">
+                                <div class="border rounded p-5 text-center">
+                                    <i class="fas fa-book-open fa-4x text-muted mb-4"></i>
+                                    <h3 class="text-muted mb-3">No journal entries yet</h3>
+                                    <p class="text-muted mb-4">Start writing your first entry to begin your journaling journey</p>
+                                    <button class="btn btn-primary-custom" onclick="openAddEntryModal()">
+                                        <i class="fas fa-plus me-2"></i> Create Your First Entry
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }, 300);
             }
-        });
-    });
-    
-    // Function to delete journal entry
-    async function deleteJournalEntry(entryId) {
+        } else {
+            let msg = "Deletion failed";
+            try {
+                const errorData = await response.json();
+                msg = errorData.error ?? msg;
+            } catch {}
+            throw new Error(msg);
+        }
+    } catch (error) {
+        showToast(`Error: ${error.message}`, 'danger');
+        console.error('Error deleting journal entry:', error);
+    }
+}
+
+// Auto-save draft (debounced)
+async function autoSaveDraft() {
+    const title = document.querySelector('#addEntryModal #id_title')?.value || '';
+    const entry = document.querySelector('#addEntryModal #id_entry')?.value || '';
+    const statusElement = document.getElementById('auto-save-status');
+    if (entry.length > 0 && statusElement) {
+        statusElement.textContent = 'Saving draft...';
+        statusElement.className = 'auto-save-status text-warning small';
         try {
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            const response = await fetch(`journal-entry/${entryId}/delete/`, {
-                method: 'DELETE',
+            const response = await fetch('/journal/auto-save/', {
+                method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
                     'Content-Type': 'application/json',
-                }
+                },
+                body: JSON.stringify({ title, entry })
             });
-            
+
             if (response.ok) {
-                // Close modal
-                bootstrap.Modal.getInstance(document.getElementById('journalEntryModal')).hide();
-                
-                // Show success message
-                alert('Journal entry deleted successfully!');
-                
-                // Reload the page to update the entries list
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete entry');
+                statusElement.textContent = 'Draft saved';
+                statusElement.className = 'auto-save-status text-success small';
+                setTimeout(() => { statusElement.textContent = ''; }, 1800);
             }
-            
         } catch (error) {
-            console.error('Error deleting journal entry:', error);
-            alert(`Error: ${error.message}`);
+            statusElement.textContent = 'Save failed';
+            statusElement.className = 'auto-save-status text-danger small';
+            console.error('Auto-save error:', error);
         }
     }
-    
-    </script>
-    
-    <!-- Add some CSS for better modal styling -->
-    <style>
-    .modal-content {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+// Filter entries (case-insensitive, accessibility)
+function filterEntries(searchTerm) {
+    const entries = document.querySelectorAll('.entry-card');
+    let visibleCount = 0;
+    entries.forEach(entry => {
+        const title = entry.querySelector('h4')?.textContent.toLowerCase() || '';
+        const content = entry.querySelector('.entry-content')?.textContent.toLowerCase() || '';
+        const date = entry.querySelector('time')?.textContent.toLowerCase() || '';
+        if (title.includes(searchTerm) || content.includes(searchTerm) || date.includes(searchTerm)) {
+            entry.style.display = '';
+            visibleCount++;
+        } else {
+            entry.style.display = 'none';
+        }
+    });
+    // No results
+    const noResultsId = 'no-results';
+    let noResults = document.getElementById(noResultsId);
+    if (visibleCount === 0 && searchTerm) {
+        if (!noResults) {
+            const div = document.createElement('div');
+            div.id = noResultsId;
+            div.className = 'col-12 text-center py-5';
+            div.innerHTML = `
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted mb-2">No entries found</h4>
+                <p class="text-muted">No entries match "<span class="fw-semibold">${searchTerm}</span>"</p>
+                <p class="text-muted small">Try different search terms</p>
+            `;
+            document.getElementById('past-entries-container').appendChild(div);
+        }
+    } else if (noResults) {
+        noResults.remove();
     }
-    
-    .modal-header {
-        border-radius: 15px 15px 0 0;
-        padding: 1.2rem 1.5rem;
+}
+
+// Toast (better accessibility)
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { delay: 2700 });
+    bsToast.show();
+    toast.addEventListener('hidden.bs.toast', () => { toast.remove(); });
+}
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '1099';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for journal entry textarea
+    const entryField = document.querySelector('#addEntryModal #id_entry');
+    if (entryField) {
+        entryField.addEventListener('input', function() {
+            const charCount = this.value.length;
+            const counter = document.getElementById('entry-counter');
+            if (counter) {
+                counter.textContent = `${charCount}/5000 characters`;
+                if (charCount > 4800) counter.className = 'character-counter text-danger small mt-2 text-end';
+                else if (charCount > 4000) counter.className = 'character-counter text-warning small mt-2 text-end';
+                else counter.className = 'character-counter text-muted small mt-2 text-end';
+            }
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(autoSaveDraft, 1400);
+        });
     }
-    
-    .modal-body {
-        padding: 1.5rem;
+    // Search
+    const searchInput = document.getElementById('search-entries');
+    const clearSearch = document.getElementById('clear-search');
+    if (searchInput && clearSearch) {
+        searchInput.addEventListener('input', function() {
+            filterEntries(this.value.trim().toLowerCase());
+        });
+        clearSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            filterEntries('');
+            searchInput.focus();
+        });
+        searchInput.setAttribute('autocomplete', 'off');
     }
-    
-    .modal-footer {
-        border-top: 1px solid #dee2e6;
-        padding: 1rem 1.5rem;
+    // Edit button
+    const editBtn = document.getElementById('editEntryBtn');
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            if (currentEntryId) {
+                window.location.href = `/journal/edit/${currentEntryId}/`;
+            }
+        });
     }
-    
-    .journal-content {
-        font-size: 1rem;
-        line-height: 1.6;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    // Delete button
+    const deleteBtn = document.getElementById('deleteEntryBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function() {
+            if (currentEntryId && confirm('Delete this journal entry? This cannot be undone.')) {
+                deleteJournalEntry(currentEntryId);
+            }
+        });
     }
-    
-    /* Loading animation */
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+    // Quick view btn
+    document.querySelectorAll('.quick-view-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const entryId = this.getAttribute('data-entry-id');
+            if (entryId) fetch_journal_entry(Number(entryId));
+        });
+    });
+    // Reset form on modal close
+    const addModal = document.getElementById('addEntryModal');
+    if (addModal) {
+        addModal.addEventListener('hidden.bs.modal', function() {
+            const form = document.getElementById('new-journal-entry-form');
+            if (form) {
+                form.reset();
+                const counter = document.getElementById('entry-counter');
+                if (counter) {
+                    counter.textContent = '0/5000 characters';
+                    counter.className = 'character-counter text-muted small mt-2 text-end';
+                }
+                const status = document.getElementById('auto-save-status');
+                if (status) status.textContent = '';
+            }
+        });
     }
-    
-    .loading {
-        animation: pulse 1.5s ease-in-out infinite;
-    }
-    </style>
+});
+</script>
+
+<!-- Enhanced Styles -->
+<style>
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+    background: #fff;
+}
+.modal-header {
+    border-radius: 15px 15px 0 0;
+    padding: 1.2rem 1.5rem;
+}
+.modal-body {
+    padding: 1.5rem;
+}
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+.journal-content {
+    font-size: 1rem;
+    line-height: 1.8;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* Loading animation */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+.loading { animation: pulse 1.1s ease-in-out infinite; }
+/* Entry cards and hover */
+.entry-card-inner {
+    transition: box-shadow 0.25s, border-color 0.2s, transform 0.22s;
+    border: 1px solid #e9ecef;
+    cursor: pointer;
+    background: #fafbfc;
+}
+.entry-card-inner:hover {
+    transform: translateY(-5px) scale(1.012);
+    box-shadow: 0 12px 28px rgba(58,223,217,0.13);
+    border-color: var(--color-teal);
+}
+.entry-content {
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: #495057;
+    word-break: break-word;
+}
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .dashboard-main-content { padding: 1rem !important; }
+    .journal-header h1 { font-size: 2rem !important; }
+    .journal-header .btn { font-size: 0.91rem; padding: 0.5rem 1rem; }
+    .search-container { margin-top: 1rem; width: 100%; }
+    .search-container .input-group { max-width: 100% !important; }
+    .entry-card { margin-bottom: 1rem; }
+    .modal-dialog { margin: 0.5rem; }
+}
+/* Character counter/auto-save status */
+.character-counter { font-size: 0.76rem; }
+.auto-save-status { font-size: 0.74rem; font-style: italic; min-height: 1.1em; }
+/* Search input styling */
+#search-entries:focus {
+    border-color: var(--color-teal);
+    box-shadow: 0 0 0 0.16rem rgba(23, 162, 184, 0.15);
+}
+/* Entry card scrollbar */
+.entry-content::-webkit-scrollbar { width: 6px; }
+.entry-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.entry-content::-webkit-scrollbar-thumb { background: #bdbdbd; border-radius: 15px; }
+.entry-content::-webkit-scrollbar-thumb:hover { background: #909090; }
+</style>
 {% endblock main %}

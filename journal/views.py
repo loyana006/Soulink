@@ -25,31 +25,62 @@ def journal(request: HttpRequest):
 
         context["msg"] = "Invalid Input"
 
+    # Get all entries for the user, ordered by most recent first
+    past_entries = JournalEntry.objects.filter(user=request.user).order_by('-entry_date')
+    
     context["form"] = form
-    context["past_entries"] = JournalEntry.objects.all().filter(user=request.user.id)
+    context["past_entries"] = past_entries
+    context["total_entries"] = past_entries.count()
 
     return render(request, "journal.html", context)
 
 
 @login_required
 def get_journal_entry(request: HttpRequest, id=None):
-    entry = None
-
+    """Get a single journal entry as JSON with all necessary data"""
     if request.method == "GET" and id:
         entry = get_object_or_404(JournalEntry, id=id, user=request.user)
-        serialized_data = serialize("json", [entry])
-        data = json.loads(serialized_data)[0]["fields"]
+        
+        # Build comprehensive response with all necessary data
+        data = {
+            "id": entry.id,
+            "title": entry.title,
+            "entry": entry.entry,
+            "entry_date": entry.entry_date.isoformat() if entry.entry_date else None,
+            "created_at": entry.entry_date.isoformat() if entry.entry_date else None,
+            "updated_at": entry.entry_date.isoformat() if entry.entry_date else None,  # Note: model doesn't have updated_at field
+            "word_count": entry.word_count,
+            "read_time": entry.read_time,
+            "user_id": entry.user.id,
+        }
+        
         return JsonResponse(data)
 
-    return JsonResponse({})
+    return JsonResponse({"error": "Entry ID required"}, status=400)
+
+
+@login_required
+def view_journal_entry(request: HttpRequest, id=None):
+    """View a single journal entry with RASA analysis"""
+    if not id:
+        return redirect("journal")
+    
+    entry = get_object_or_404(JournalEntry, id=id, user=request.user)
+    
+    context = {
+        "entry": entry,
+    }
+    
+    return render(request, "journal_entry_view.html", context)
 
 
 @login_required
 @require_http_methods(["DELETE"])
 def delete_journal_entry(request, id=None):
-    """Delete a journal entry"""
+    """Delete a journal entry - only allows deletion of user's own entries"""
     try:
-        entry = get_object_or_404(JournalEntry, id=id)
+        # Security: Ensure user can only delete their own entries
+        entry = get_object_or_404(JournalEntry, id=id, user=request.user)
         entry.delete()
 
         return JsonResponse(

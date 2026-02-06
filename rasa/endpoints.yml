@@ -1,0 +1,20 @@
+version: "3.1"
+
+# Server for the custom API
+# https://rasa.com/docs/rasa/custom-actions
+
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+
+# Tracker store which is used to store conversations
+# https://rasa.com/docs/rasa/tracker-stores
+
+#tracker_store:
+#  type: InMemoryTrackerStore
+
+# Event broker which all conversation events are streamed to
+# https://rasa.com/docs/rasa/event-brokers
+
+#event_broker:
+#  type: file
+#  path: /path/to/rasa/events.log

@@ -263,7 +263,6 @@ input[type="text"]:focus, textarea:focus, .form-control-custom:focus {
 
 .dashboard-sidebar {
     width: 250px; 
-    background-color: white; /* Light background */
     color: var(--color-text-dark);
     padding: 2rem 1.5rem;
     flex-shrink: 0;
@@ -272,7 +271,7 @@ input[type="text"]:focus, textarea:focus, .form-control-custom:focus {
 
 .dashboard-main-content {
     flex-grow: 1;
-    padding: 2rem 3rem;
+    padding: 3rem 0rem 3rem 2rem;
     background-color: var(--color-light-mint); 
 }
 

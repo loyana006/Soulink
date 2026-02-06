@@ -11,3 +11,22 @@ class JournalEntry(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def word_count(self):
+        """Calculate the word count of the entry"""
+        if not self.entry:
+            return 0
+        # Count words by splitting on whitespace
+        words = self.entry.strip().split()
+        return len(words)
+    
+    @property
+    def read_time(self):
+        """Calculate estimated reading time in minutes (average 200 words per minute)"""
+        words = self.word_count
+        if words == 0:
+            return 1  # Minimum 1 minute
+        # Average reading speed: 200 words per minute
+        minutes = max(1, round(words / 200))
+        return minutes

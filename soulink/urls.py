@@ -26,6 +26,7 @@ urlpatterns = [
     path("", include("accounts.urls")),
     path("journal/", include("journal.urls")),
     path("confessionals/", include("confession.urls")),
+    path("chatbot/", include("chatbot.urls")),
     path("", views.index, name="home"),
     path("about/", views.about, name="about"),
     path("support/", views.support, name="support"),

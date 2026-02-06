@@ -1,4 +1,5 @@
 {% extends 'components/base.html' %}
+{% load static %}
 
 {% block main %}
 <style>
@@ -19,33 +20,101 @@
         padding: 20px;
         overflow-y: auto;
         background-color: var(--color-light-mint);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
     .chat-input {
         padding: 15px;
         border-top: 1px solid var(--color-accent-soft);
+        background-color: white;
     }
 
     .yana-message, .user-message {
-        margin-bottom: 1rem;
         max-width: 80%;
-        padding: 10px 15px;
+        padding: 12px 18px;
         border-radius: 18px;
-        line-height: 1.5;
+        line-height: 1.6;
+        word-wrap: break-word;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .yana-message {
-        background-color: var(--color-accent-soft);
+        background: linear-gradient(135deg, var(--color-accent-soft) 0%, #e8f5e9 100%);
         color: var(--color-text-dark);
         align-self: flex-start;
-        margin-right: auto;
+        border-bottom-left-radius: 4px;
     }
 
     .user-message {
-        background-color: var(--color-pink);
+        background: linear-gradient(135deg, var(--color-pink) 0%, #ff6b9d 100%);
         color: white;
         align-self: flex-end;
-        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    .typing-indicator {
+        display: none;
+        align-self: flex-start;
+        background-color: var(--color-accent-soft);
+        padding: 12px 18px;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .typing-indicator.active {
+        display: flex;
+        gap: 4px;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-teal);
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+
+    .chat-input input:disabled,
+    .chat-input button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .reset-btn {
+        margin-top: 10px;
+        font-size: 0.85rem;
     }
 </style>
 
@@ -53,37 +122,182 @@
     {% include 'components/sidebar.html' %}
 
     <main class="dashboard-main-content">
-        
-        <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">Your AI Companion: Yana</h2>
-        <p class="lead text-muted mb-4">A supportive, judgment-free space to chat anytime you need.</p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">
+                    <i class="fas fa-robot me-2"></i>Your AI Companion: Yana
+                </h2>
+                <p class="lead text-muted mb-0">A supportive, judgment-free space to chat anytime you need.</p>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" id="reset-conversation-btn" title="Reset conversation">
+                <i class="fas fa-redo me-1"></i> Reset
+            </button>
+        </div>
 
         <div class="chat-window">
-            <div class="chat-messages d-flex flex-column">
+            <div class="chat-messages" id="chat-messages">
                 <div class="yana-message">
                     Hello! I'm Yana, your emotional support companion. I'm here to listen to you without judgment. How are you feeling today?
                 </div>
-                
-                <div class="user-message">
-                    I'm feeling a bit anxious about a presentation tomorrow.
-                </div>
-
-                <div class="yana-message">
-                    That sounds stressful. It's completely normal to feel anxious before a big event. Could you tell me more about what specifically is making you feel anxious about the presentation?
-                </div>
-
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
             </div>
             
             <div class="chat-input">
-                <form action="/api/chat-with-yana" method="POST" class="d-flex">
-                    <input type="text" class="form-control-custom me-2" placeholder="Type your message here..." style="flex-grow: 1;">
-                    <button type="submit" class="btn btn-primary-custom" style="border-radius: 10px;">
-                        <i class="fas fa-paper-plane"></i> Send
+                <form id="chat-form" class="d-flex">
+                    {% csrf_token %}
+                    <input 
+                        type="text" 
+                        id="message-input" 
+                        class="form-control me-2" 
+                        placeholder="Type your message here..." 
+                        autocomplete="off"
+                        required>
+                    <button type="submit" class="btn btn-primary-custom" id="send-btn" style="border-radius: 10px;">
+                        <i class="fas fa-paper-plane me-1"></i> Send
                     </button>
                 </form>
-                <small class="text-muted mt-2 d-block text-center">Remember, Yana is an AI and not a substitute for professional therapy.</small>
+                <small class="text-muted mt-2 d-block text-center">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Remember, Yana is an AI and not a substitute for professional therapy.
+                </small>
             </div>
         </div>
-
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const sendBtn = document.getElementById('send-btn');
+    const resetBtn = document.getElementById('reset-conversation-btn');
+
+    // Auto-scroll to bottom
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Add message to chat
+    function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'user-message' : 'yana-message';
+        messageDiv.textContent = text;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Show/hide typing indicator
+    function setTyping(show) {
+        if (show) {
+            typingIndicator.classList.add('active');
+            scrollToBottom();
+        } else {
+            typingIndicator.classList.remove('active');
+        }
+    }
+
+    // Enable/disable input
+    function setInputEnabled(enabled) {
+        messageInput.disabled = !enabled;
+        sendBtn.disabled = !enabled;
+        if (enabled) {
+            messageInput.focus();
+        }
+    }
+
+    // Send message to RASA
+    async function sendMessage(message) {
+        setInputEnabled(false);
+        setTyping(true);
+        
+        // Add user message to chat
+        addMessage(message, true);
+        messageInput.value = '';
+
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const response = await fetch('{% url "chatbot:chat_with_yana" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                addMessage(data.message, false);
+            } else {
+                addMessage('I apologize, but I encountered an error. Could you please try again?', false);
+                console.error('Error:', data.error);
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            addMessage('I\'m having trouble connecting right now. Please try again in a moment.', false);
+        } finally {
+            setTyping(false);
+            setInputEnabled(true);
+        }
+    }
+
+    // Handle form submission
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            sendMessage(message);
+        }
+    });
+
+    // Reset conversation
+    resetBtn.addEventListener('click', async function() {
+        if (confirm('Are you sure you want to reset the conversation? This will clear the chat history.')) {
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const response = await fetch('{% url "chatbot:reset_conversation" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    }
+                });
+
+                const data = await response.json();
+                
+                // Clear chat messages
+                chatMessages.innerHTML = '';
+                
+                // Add welcome message
+                addMessage('Hello! I\'m Yana, your emotional support companion. I\'m here to listen to you without judgment. How are you feeling today?', false);
+                
+                if (data.success) {
+                    console.log('Conversation reset successfully');
+                }
+            } catch (error) {
+                console.error('Error resetting conversation:', error);
+                // Still clear the chat even if API call fails
+                chatMessages.innerHTML = '';
+                addMessage('Hello! I\'m Yana, your emotional support companion. I\'m here to listen to you without judgment. How are you feeling today?', false);
+            }
+        }
+    });
+
+    // Focus input on load
+    messageInput.focus();
+    
+    // Scroll to bottom on load
+    scrollToBottom();
+});
+</script>
 {% endblock main %}

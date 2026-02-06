@@ -1,0 +1,191 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - hey
+      - hello
+      - hi
+      - hello there
+      - good morning
+      - good evening
+      - hey there
+      - hi there
+      - greetings
+      - howdy
+
+  - intent: goodbye
+    examples: |
+      - bye
+      - goodbye
+      - see you later
+      - see you
+      - talk to you later
+      - farewell
+      - have a good day
+      - catch you later
+      - bye bye
+      - see ya
+
+  - intent: affirm
+    examples: |
+      - yes
+      - yep
+      - yeah
+      - sure
+      - absolutely
+      - correct
+      - right
+      - that's right
+      - of course
+      - definitely
+
+  - intent: deny
+    examples: |
+      - no
+      - nope
+      - not really
+      - nah
+      - never
+      - not at all
+      - definitely not
+
+  - intent: mood_great
+    examples: |
+      - I'm feeling great
+      - I'm doing well
+      - I feel amazing
+      - I'm happy
+      - feeling good
+      - I'm in a good mood
+      - things are going well
+      - I feel fantastic
+      - I'm doing great
+      - feeling wonderful
+
+  - intent: mood_unhappy
+    examples: |
+      - I'm feeling down
+      - I'm not doing well
+      - I feel bad
+      - I'm unhappy
+      - feeling low
+      - I'm in a bad mood
+      - things aren't going well
+      - I feel terrible
+      - I'm not okay
+      - feeling awful
+
+  - intent: anxious
+    examples: |
+      - I'm anxious
+      - I feel anxious
+      - I'm feeling anxious
+      - I have anxiety
+      - I'm worried
+      - I'm nervous
+      - I'm feeling nervous
+      - I'm stressed about
+      - I'm anxious about
+      - I'm worried about
+      - feeling anxious
+      - having anxiety
+
+  - intent: sad
+    examples: |
+      - I'm sad
+      - I feel sad
+      - I'm feeling sad
+      - I'm depressed
+      - feeling down
+      - I'm feeling down
+      - I'm blue
+      - I feel blue
+      - I'm feeling blue
+      - feeling sad
+      - I'm upset
+
+  - intent: stressed
+    examples: |
+      - I'm stressed
+      - I feel stressed
+      - I'm feeling stressed
+      - I'm under stress
+      - I'm overwhelmed
+      - feeling overwhelmed
+      - I'm swamped
+      - too much pressure
+      - I'm stressed out
+      - feeling stressed
+
+  - intent: grateful
+    examples: |
+      - I'm grateful
+      - I feel grateful
+      - I'm thankful
+      - I feel thankful
+      - I'm feeling grateful
+      - feeling grateful
+      - I appreciate
+      - I'm blessed
+      - feeling blessed
+
+  - intent: need_help
+    examples: |
+      - I need help
+      - can you help me
+      - help me
+      - I need support
+      - can you support me
+      - I need someone to talk to
+      - I need advice
+      - help
+      - I'm struggling
+      - I need assistance
+
+  - intent: tell_story
+    examples: |
+      - I want to tell you something
+      - let me tell you
+      - I have a story
+      - I want to share
+      - listen to this
+      - I need to talk about
+      - I want to talk about
+      - can I tell you
+      - I have something to share
+
+  - intent: ask_advice
+    examples: |
+      - what should I do
+      - I need advice
+      - can you advise me
+      - what do you think
+      - what would you do
+      - I need guidance
+      - help me decide
+      - what's your opinion
+      - should I
+
+  - intent: bot_challenge
+    examples: |
+      - are you a bot
+      - are you human
+      - who are you
+      - what are you
+      - are you real
+      - are you an AI
+      - you're a bot
+      - you're not human
+
+  - intent: analyze_journal
+    examples: |
+      - analyze this journal entry
+      - analyze journal
+      - provide emotional state summary
+      - what is my emotional state
+      - analyze my feelings
+      - summarize my emotions
+      - analyze entry
+      - journal analysis
+      - emotional analysis

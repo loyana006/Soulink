@@ -1,0 +1,85 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - anxious
+  - sad
+  - stressed
+  - grateful
+  - need_help
+  - tell_story
+  - ask_advice
+  - bot_challenge
+  - analyze_journal
+
+entities:
+  - emotion
+  - situation
+
+responses:
+  utter_greet:
+    - text: "Hello! I'm Yana, your emotional support companion. I'm here to listen to you without judgment. How are you feeling today?"
+    - text: "Hi there! I'm Yana. I'm here to provide a safe space for you to express yourself. What's on your mind?"
+    - text: "Hello! Welcome. I'm Yana, and I'm here to support you. How can I help you today?"
+
+  utter_goodbye:
+    - text: "Take care of yourself. Remember, I'm always here when you need someone to talk to."
+    - text: "Goodbye! Remember to be kind to yourself today."
+    - text: "See you soon! Take care and remember you're not alone."
+
+  utter_iamabot:
+    - text: "I'm Yana, an AI companion designed to provide emotional support and a judgment-free space for you to express your feelings."
+
+  utter_cheer_up:
+    - text: "I understand you're going through a tough time. It's okay to feel this way. Would you like to talk about what's bothering you?"
+    - text: "I'm here for you. Sometimes just expressing our feelings can help. What's making you feel this way?"
+
+  utter_happy:
+    - text: "That's wonderful to hear! I'm glad you're feeling good. What's contributing to your positive mood today?"
+    - text: "I'm so happy to hear that! It's great that you're in a good place. What's bringing you joy?"
+
+  utter_anxious:
+    - text: "I understand that anxiety can be really challenging. It's completely normal to feel anxious sometimes. Can you tell me more about what's making you feel anxious?"
+    - text: "Anxiety can be overwhelming. You're not alone in feeling this way. What specific situation or thought is causing your anxiety?"
+
+  utter_sad:
+    - text: "I'm sorry you're feeling sad. It's okay to feel this way, and your feelings are valid. Would you like to share what's on your mind?"
+    - text: "I'm here to listen. Sometimes talking about our sadness can help us process it. What's making you feel sad?"
+
+  utter_stressed:
+    - text: "Stress can be really difficult to manage. You're doing the right thing by reaching out. What's causing you stress right now?"
+    - text: "I understand stress can feel overwhelming. Let's talk about what's stressing you out. Sometimes breaking it down helps."
+
+  utter_grateful:
+    - text: "That's beautiful! Gratitude is such a powerful emotion. What are you feeling grateful for today?"
+    - text: "I love that you're feeling grateful! Practicing gratitude can really help our mental well-being. What's bringing you gratitude?"
+
+  utter_help:
+    - text: "I'm here to help you in any way I can. I can listen, provide emotional support, and help you process your feelings. What do you need help with?"
+    - text: "Of course! I'm here to support you. Whether you need to talk, vent, or just have someone listen, I'm here. What can I help you with?"
+
+  utter_default:
+    - text: "I'm here to listen. Could you tell me more about what you're feeling or thinking?"
+    - text: "I understand. Can you help me understand better by sharing more details?"
+    - text: "I'm listening. Feel free to share whatever is on your mind."
+
+  utter_ask_advice:
+    - text: "I can offer some perspective, but remember I'm not a substitute for professional help. What would you like advice about?"
+    - text: "I'm here to help you think through things. What situation are you facing that you'd like some perspective on?"
+
+  utter_tell_story:
+    - text: "I'd love to hear your story. Please share whatever you feel comfortable sharing. I'm here to listen without judgment."
+    - text: "I'm all ears. Take your time and share what you'd like. This is a safe space."
+
+  utter_bot_challenge:
+    - text: "I'm Yana, an AI companion created to provide emotional support. While I'm not human, I'm here to listen and support you without judgment."
+
+  utter_journal_analysis:
+    - text: "Based on your journal entry, I can see you're expressing a range of emotions and thoughts. This is a positive step in self-reflection. Your writing shows emotional awareness and the courage to explore your feelings."
+    - text: "After reading your entry, I notice themes of self-reflection and emotional processing. Journaling is a powerful tool for mental well-being, and I can see you're using it effectively to understand yourself better."
+    - text: "Your journal entry reveals thoughtful introspection. I can sense the emotions you're experiencing, and I want you to know that your feelings are valid. Continue expressing yourself - it's an important part of your journey."

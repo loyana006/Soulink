@@ -1,0 +1,93 @@
+version: "3.1"
+
+stories:
+  - story: happy path
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: mood_great
+      - action: utter_happy
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: sad path
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: sad
+      - action: utter_sad
+      - intent: tell_story
+      - action: utter_tell_story
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: anxious path
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: anxious
+      - action: utter_anxious
+      - intent: tell_story
+      - action: utter_tell_story
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: stressed path
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: stressed
+      - action: utter_stressed
+      - intent: need_help
+      - action: utter_help
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: grateful path
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: grateful
+      - action: utter_grateful
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: ask for help
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: need_help
+      - action: utter_help
+      - intent: tell_story
+      - action: utter_tell_story
+
+  - story: ask advice
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: ask_advice
+      - action: utter_ask_advice
+      - intent: tell_story
+      - action: utter_tell_story
+
+  - story: bot challenge
+    steps:
+      - intent: bot_challenge
+      - action: utter_iamabot
+      - intent: greet
+      - action: utter_greet
+
+  - story: just greet
+    steps:
+      - intent: greet
+      - action: utter_greet
+
+  - story: just goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: journal analysis
+    steps:
+      - intent: analyze_journal
+      - action: utter_journal_analysis

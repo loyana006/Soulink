@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "accounts",
     "journal",
     "confession",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,7 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# RASA Configuration
+RASA_SERVER_URL = "http://localhost:5005"  # Default RASA server URL
+RASA_TIMEOUT = 10  # Timeout in seconds for RASA requests
