@@ -4,9 +4,24 @@ from accounts.models import CustomUser
 
 
 class JournalEntry(models.Model):
+    MOOD_CHOICES = [
+        ("great", "Great"),
+        ("good", "Good"),
+        ("okay", "Okay"),
+        ("low", "Low"),
+        ("tough", "Tough"),
+    ]
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     title = TextField()
     entry = TextField(max_length=50000)
+    mood = models.CharField(
+        max_length=16,
+        choices=MOOD_CHOICES,
+        blank=True,
+        default="",
+    )
+    sentiment_analysis = models.JSONField(null=True, blank=True)
     entry_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

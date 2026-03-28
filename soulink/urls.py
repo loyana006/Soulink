@@ -31,6 +31,6 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("support/", views.support, name="support"),
     path("chatbot/", views.chatbot, name="chatbot"),
-    path("blog/", views.blog, name="blog"),
+    path("blog/", include("blog.urls")),
     path("dashboard/", views.dashboard, name="dashboard"),
 ]

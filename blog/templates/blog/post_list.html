@@ -1,0 +1,109 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+
+        <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">Mental wellness blog</h2>
+        <p class="lead text-muted mb-4">Articles, tips, and guides for your journey.</p>
+
+        <div class="row">
+            <div class="col-lg-8">
+
+                <form method="get" class="mb-4" action="{% url 'blog' %}">
+                    <div class="input-group">
+                        <input type="search" name="q" value="{{ search_query|default:'' }}" class="form-control form-control-custom" placeholder="Search articles…" aria-label="Search">
+                        {% if active_category %}
+                        <input type="hidden" name="category" value="{{ active_category }}">
+                        {% endif %}
+                        <button class="btn btn-primary-custom" type="submit">Search</button>
+                    </div>
+                </form>
+
+                {% if active_category or search_query %}
+                <p class="small text-muted mb-3">
+                    {% if search_query %}Showing results for “{{ search_query }}”.{% endif %}
+                    {% if active_category %}
+                        {% for key, label in category_labels.items %}
+                            {% if key == active_category %}<span class="ms-1">Category: <strong>{{ label }}</strong></span>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </p>
+                {% endif %}
+
+                {% if active_category %}
+                <p class="small mb-3"><a href="{% url 'blog' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}">Clear category filter</a></p>
+                {% endif %}
+
+                {% for post in posts %}
+                <article class="article-preview-card p-4 mb-3">
+                    <a href="{% url 'blog_post_detail' post.slug %}" class="text-decoration-none d-block">
+                        <h3 class="h4 mb-2" style="color: var(--color-pink);">{{ post.title }}</h3>
+                        <p class="mb-2 text-muted">{{ post.excerpt|default:post.body|truncatewords:35 }}</p>
+                        <small class="text-secondary fw-bold me-3"><i class="fas fa-calendar-alt me-1"></i> {{ post.published_at|date:"M j, Y" }}</small>
+                        <small class="text-secondary fw-bold"><i class="fas fa-tag me-1"></i> {{ post.get_category_display }}</small>
+                    </a>
+                </article>
+                {% empty %}
+                <p class="text-muted">No articles match your filters yet.</p>
+                {% endfor %}
+
+                {% if page_obj.has_other_pages %}
+                <nav class="mt-5" aria-label="Blog pagination">
+                    <ul class="pagination justify-content-center flex-wrap">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-custom mb-4" style="background-color: var(--color-accent-soft);">
+                    <h4 class="h5 mb-3" style="color: var(--color-teal);"><i class="fas fa-search me-2"></i>Topics</h4>
+                    <p class="small text-muted">Filter by category (counts update as posts are published).</p>
+                    <ul class="list-unstyled mb-0">
+                        {% for item in category_sidebar %}
+                        <li class="mb-2">
+                            <a href="{% url 'blog' %}?category={{ item.key }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="text-decoration-none text-dark d-flex justify-content-between align-items-center">
+                                <span>{{ item.label }}</span>
+                                <span class="badge bg-secondary rounded-pill">{{ item.count }}</span>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li class="small text-muted">No categories yet — publish posts from the admin to see topics here.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="daily-focus-card">
+                    <h4 class="mb-2">Thought of the week</h4>
+                    <blockquote class="blockquote mb-0">
+                        <p class="mb-0 fw-bold">"The best view comes after the hardest climb."</p>
+                        <footer class="blockquote-footer">Positive psychology</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+{% endblock main %}

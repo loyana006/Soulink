@@ -69,25 +69,22 @@
             </div>
         </div>
         
-        <h3 class="mb-4 mt-5" style="color: var(--soulink-text-color);">Recommended Reads from the Blog</h3>
+        <h3 class="mb-4 mt-5" style="color: var(--soulink-text-color);">Recommended reads from the blog</h3>
         
+        {% for post in recent_blog_posts %}
         <div class="article-preview-card">
-            <a href="{% url 'blog' %}#article-1" class="text-decoration-none">
-                <h5 class="mb-1">5 Simple Ways to Manage Anxiety in the Workplace</h5>
-                <p class="mb-0 text-muted small">Techniques to ground yourself and reduce stress during busy days.</p>
-                <small>Mindfulness</small>
+            <a href="{% url 'blog_post_detail' post.slug %}" class="text-decoration-none">
+                <h5 class="mb-1" style="color: var(--color-pink);">{{ post.title }}</h5>
+                <p class="mb-0 text-muted small">{{ post.excerpt|default:post.body|truncatewords:22 }}</p>
+                <small class="text-secondary">{{ post.get_category_display }}</small>
             </a>
         </div>
-        <div class="article-preview-card">
-            <a href="{% url 'blog' %}#article-2" class="text-decoration-none">
-                <h5 class="mb-1">The Power of Expressive Writing: Why Journaling Works</h5>
-                <p class="mb-0 text-muted small">Understanding the therapeutic benefits backed by research.</p>
-                <small>Reflection</small>
-            </div>
-        </div>
+        {% empty %}
+        <p class="text-muted small">No published articles yet. Check back soon.</p>
+        {% endfor %}
         
         <div class="text-center mt-4">
-            <a href="{% url 'blog' %}" class="btn btn-outline-custom btn-lg">View All Articles</a>
+            <a href="{% url 'blog' %}" class="btn btn-outline-custom btn-lg">View all articles</a>
         </div>
 
     </main>

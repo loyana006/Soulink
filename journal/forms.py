@@ -1,4 +1,5 @@
 from django import forms
+
 from journal.models import JournalEntry
 
 
@@ -17,7 +18,12 @@ class JournalEntryForm(forms.ModelForm):
             }
         )
     )
+    mood = forms.ChoiceField(
+        choices=[("", "How are you feeling? (optional)")] + list(JournalEntry.MOOD_CHOICES),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select form-control-custom mb-3"}),
+    )
 
     class Meta:
         model = JournalEntry
-        fields = ["title", "entry"]
+        fields = ["title", "entry", "mood"]

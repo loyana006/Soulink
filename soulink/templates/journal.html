@@ -111,6 +111,13 @@
                         {% endif %}
                     </div>
                     <div class="mb-3">
+                        <label for="id_mood" class="form-label fw-semibold">Mood today</label>
+                        {{ form.mood }}
+                        {% if form.mood.errors %}
+                            <div class="text-danger small mt-1">{{ form.mood.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
                         <label for="id_entry" class="form-label fw-semibold">Your Entry</label>
                         {{ form.entry }}
                         {% if form.entry.errors %}

@@ -5,9 +5,14 @@ from django.contrib.auth.decorators import login_required
 from journal.models import JournalEntry
 from django.shortcuts import get_object_or_404
 import json
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+
+from accounts.models import UserGoal, UserProfile
+from accounts.profile_data import ensure_badges, week_start
+from journal.sentiment import extract_emotional_state
 
 
 @login_required
@@ -19,7 +24,22 @@ def journal(request: HttpRequest):
         if form.is_valid():
             entry = form.save(commit=False)
             entry.user = request.user
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            if profile.ai_journal_analysis_consent:
+                text = f"{entry.title} {entry.entry}"
+                entry.sentiment_analysis = extract_emotional_state(text)
+            else:
+                entry.sentiment_analysis = None
             entry.save()
+            ensure_badges(request.user)
+            ws = week_start(timezone.localdate())
+            goal, _ = UserGoal.objects.get_or_create(
+                user=request.user,
+                week_start=ws,
+                defaults={"target_entries": 3, "progress": 0},
+            )
+            goal.progress = min(goal.progress + 1, goal.target_entries)
+            goal.save(update_fields=["progress"])
             # Clear draft after successful save
             if "journal_draft" in request.session:
                 del request.session["journal_draft"]

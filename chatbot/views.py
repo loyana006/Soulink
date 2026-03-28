@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from journal.models import JournalEntry
+from journal.sentiment import extract_emotional_state
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import ChatMessage, ChatSession
 
@@ -106,7 +107,11 @@ def chat_with_yana(request):
                 role=ChatMessage.ROLE_YANA,
                 session=chat_session,
             )
-            
+            snippet = message[:220] + ("…" if len(message) > 220 else "")
+            ChatSession.objects.filter(pk=chat_session.pk).update(
+                topic_summary=f"Recent focus: {snippet}"
+            )
+
             return JsonResponse({
                 'success': True,
                 'message': bot_message,
@@ -131,6 +136,10 @@ def chat_with_yana(request):
                 text=fallback_message,
                 role=ChatMessage.ROLE_YANA,
                 session=chat_session,
+            )
+            snippet = message[:220] + ("…" if len(message) > 220 else "")
+            ChatSession.objects.filter(pk=chat_session.pk).update(
+                topic_summary=f"Recent focus: {snippet}"
             )
 
             return JsonResponse({
@@ -357,57 +366,3 @@ def analyze_journal_entry(request):
         return JsonResponse({
             'error': f'An error occurred: {str(e)}'
         }, status=500)
-
-
-def extract_emotional_state(text):
-    """
-    Extract emotional state from journal text using keyword analysis.
-    Enhanced with broader emotional vocabulary for better journal analysis.
-    """
-    text_lower = text.lower()
-
-    # Extended emotional keywords for journal analysis
-    positive_keywords = [
-        'happy', 'joy', 'joyful', 'grateful', 'thankful', 'excited', 'proud',
-        'content', 'peaceful', 'calm', 'hopeful', 'optimistic', 'love', 'appreciate',
-        'blessed', 'relieved', 'motivated', 'inspired', 'confident', 'energized',
-        'fulfilled', 'satisfied', 'cheerful', 'delighted', 'wonderful', 'amazing',
-        'great', 'good', 'better', 'improved', 'progress', 'accomplish', 'success'
-    ]
-    negative_keywords = [
-        'sad', 'depressed', 'anxious', 'worried', 'stressed', 'angry', 'frustrated',
-        'overwhelmed', 'lonely', 'hurt', 'disappointed', 'fear', 'scared', 'afraid',
-        'hopeless', 'helpless', 'exhausted', 'tired', 'drained', 'empty', 'numb',
-        'guilty', 'ashamed', 'embarrassed', 'rejected', 'abandoned', 'isolated',
-        'confused', 'lost', 'stuck', 'trapped', 'panic', 'dread', 'despair',
-        'irritable', 'resentful', 'bitter', 'jealous', 'envious', 'inadequate'
-    ]
-    neutral_keywords = ['okay', 'fine', 'normal', 'alright', 'neutral', 'average', 'same', 'routine']
-
-    positive_count = sum(1 for word in positive_keywords if word in text_lower)
-    negative_count = sum(1 for word in negative_keywords if word in text_lower)
-    neutral_count = sum(1 for word in neutral_keywords if word in text_lower)
-
-    total = positive_count + negative_count + neutral_count
-    if total == 0:
-        state = 'mixed'
-        confidence = 0.3
-    elif positive_count > negative_count and positive_count > 0:
-        state = 'positive'
-        confidence = min(positive_count / (total + 1), 0.95)
-    elif negative_count > positive_count and negative_count > 0:
-        state = 'negative'
-        confidence = min(negative_count / (total + 1), 0.95)
-    elif neutral_count > 0 and positive_count == 0 and negative_count == 0:
-        state = 'neutral'
-        confidence = 0.5
-    else:
-        state = 'mixed'
-        confidence = min(max(positive_count, negative_count) / (total + 1), 0.7)
-
-    return {
-        'state': state,
-        'confidence': round(confidence, 2),
-        'positive_indicators': positive_count,
-        'negative_indicators': negative_count
-    }

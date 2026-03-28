@@ -2,180 +2,334 @@
 {% load static %}
 
 {% block main %}
+{% csrf_token %}
 <style>
-    .profile-card-img {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        /* Applying border from theme colors */
-        border: 5px solid var(--color-pink) !important; 
-    }
-
-    /* Styling the List Group to look like the sidebar nav links for consistency */
-    .profile-nav-link {
-        display: flex;
-        align-items: center;
-        padding: 0.8rem 1rem;
-        color: var(--color-text-dark);
-        text-decoration: none;
-        border-radius: 8px;
-        transition: background-color 0.2s, color 0.2s;
-        font-weight: 600;
-    }
-
-    .profile-nav-link:hover {
-        background-color: var(--color-accent-soft); 
-        color: var(--color-teal);
-    }
-
-    .profile-nav-link.active {
-        background-color: var(--color-teal); /* Using Teal for active tab highlight */
-        color: white;
-        box-shadow: 0 4px 8px rgba(0, 128, 128, 0.3);
-        border: none; /* Override default Bootstrap border */
-    }
+    .profile-banner { height: 120px; border-radius: 12px 12px 0 0;
+        background: linear-gradient(110deg, var(--color-teal) 0%, var(--color-pink) 55%, #7fffd4 100%); }
+    .profile-header-card { border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,128,128,.12);
+        background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .profile-avatar-wrap { margin-top: -48px; padding: 0 1.25rem; }
+    .profile-card-img { width: 96px; height: 96px; object-fit: cover; border: 4px solid #fff;
+        box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+    .profile-nav-link { display: flex; align-items: center; padding: .65rem .85rem; color: var(--color-text-dark);
+        text-decoration: none; border-radius: 8px; font-weight: 600; font-size: .9rem; margin-bottom: .25rem; }
+    .profile-nav-link:hover { background: var(--color-accent-soft); color: var(--color-teal); }
+    .profile-nav-link.active { background: var(--color-teal); color: #fff; }
+    .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; max-width: 280px; }
+    .heatmap-cell { width: 100%; aspect-ratio: 1; border-radius: 3px; background: #e9ecef; }
+    .heatmap-cell.l0 { background: #e9ecef; }
+    .heatmap-cell.l1 { background: #d4edda; }
+    .heatmap-cell.l2 { background: #a3d9a5; }
+    .heatmap-cell.l3 { background: #5cb85c; }
+    .heatmap-cell.l4 { background: #2d6a4f; }
+    .heatmap-cell.l5 { background: #1b4332; }
+    .kw-cloud span { display: inline-block; margin: .2rem .35rem; color: var(--color-teal); font-weight: 600; }
+    .badge-pill { font-size: .75rem; }
 </style>
 
-<div class="container py-5">
-    <h1 class="mb-4" style="color: var(--color-teal);">Account Management</h1>
+<div class="container py-4 py-md-5">
+    <h1 class="mb-3 h2" style="color: var(--color-teal);">Your wellness hub</h1>
+    <p class="text-muted small mb-4">Identity, journal insights, confessions, saved reads, and privacy — in one place.</p>
 
-    <div class="row">
-        
-        <div class="col-md-3">
-            <div class="list-group" id="list-tab" role="tablist">
-                <a class="profile-nav-link active" id="list-profile-list" data-bs-toggle="list" href="#list-profile" role="tab" aria-controls="list-profile">
-                    <i class="fas fa-user me-2"></i> Profile
-                </a>
-                <a class="profile-nav-link" id="list-settings-list" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings">
-                    <i class="fas fa-cog me-2"></i> Settings
-                </a>
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="list-group border-0" id="profile-tabs" role="tablist">
+                <a class="list-group-item list-group-item-action profile-nav-link active" data-bs-toggle="list" href="#tab-overview" role="tab">Overview &amp; insights</a>
+                <a class="list-group-item list-group-item-action profile-nav-link" data-bs-toggle="list" href="#tab-journal" role="tab">Journal history</a>
+                <a class="list-group-item list-group-item-action profile-nav-link" data-bs-toggle="list" href="#tab-confessions" role="tab">My confessions</a>
+                <a class="list-group-item list-group-item-action profile-nav-link" data-bs-toggle="list" href="#tab-saved" role="tab">Saved &amp; activity</a>
+                <a class="list-group-item list-group-item-action profile-nav-link" data-bs-toggle="list" href="#tab-privacy" role="tab">Privacy &amp; safety</a>
             </div>
         </div>
 
-        <div class="col-md-9">
-            <div class="tab-content" id="nav-tabContent">
+        <div class="col-lg-9">
+            <div class="tab-content">
 
-                <div class="tab-pane fade show active" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
-                    <div class="card-custom shadow-sm p-4">
-                        <h2 class="card-title mb-4" style="color: var(--color-pink);">Your Anonymous Profile</h2>
-                        <hr>
-
-                        <div class="text-center mb-4">
-                            <img src="{% static 'images/user/default-avatar.png' %}" alt="Profile Picture" class="rounded-circle mb-3 profile-card-img">
-                            <h3 class="card-title" style="color: var(--color-teal);">@{{ user.username }}</h3>
-                            <p class="text-muted">A safe space to express, reflect, and heal.</p>
-                        </div>
-                        
-                        <h4 class="mt-4 border-bottom pb-2" style="color: var(--color-teal);"><i class="fas fa-chart-line me-2"></i> Activity Summary</h4>
-                        <div class="row text-center mb-4">
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">
-                                        {% if data.total_blog_posts %}
-                                            {{ data.total_blog_posts }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </p>
-                                    <small class="text-muted">Blog Posts</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">
-                                        {% if data.total_journal_entries %}
-                                            {{ data.total_journal_entries }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </p>
-                                    <small class="text-muted">Journal Entries</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3 bg-light rounded shadow-sm">
-                                    <p class="h4" style="color: var(--color-pink);">
-                                        {% if data.current_streak %}
-                                            {{ data.current_streak }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </p>
-                                    <small class="text-muted">Current Streak</small>
-                                </div>
+                <div class="tab-pane fade show active" id="tab-overview">
+                    <div class="profile-header-card mb-4">
+                        <div class="profile-banner"></div>
+                        <div class="profile-avatar-wrap pb-3">
+                            <span class="d-inline-block rounded-circle bg-white p-2 fs-1">{{ profile.avatar_emoji }}</span>
+                            <div class="mt-2">
+                                <h2 class="h5 mb-0" style="color: var(--color-teal);">{{ profile.community_display_name }}</h2>
+                                <p class="text-muted small mb-0">@{{ user.username }} · Community identity for confessionals</p>
                             </div>
                         </div>
+                    </div>
 
-                        <h4 class="mt-4 border-bottom pb-2" style="color: var(--color-teal);"><i class="fas fa-info-circle me-2"></i> Account Details</h4>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <strong>Email:</strong> {{ user.email }}
-                                {% if user.is_verified %}
-                                    <span class="badge bg-success float-end">Verified</span>
-                                {% else %}
-                                    <span class="badge bg-warning float-end">Not Verified</span>
-                                {% endif %}
-                            </li>
-                            <li class="list-group-item"><strong>Date Joined:</strong> {{ user.date_joined }} </li>
-                        </ul>
+                    <div class="card-custom shadow-sm p-4 mb-4">
+                        <h3 class="h6" style="color: var(--color-pink);">Activity</h3>
+                        <div class="row g-2 text-center small">
+                            <div class="col-4 col-md-2"><div class="fw-bold fs-5" style="color: var(--color-pink);">{{ data.total_journal_entries|default:0 }}</div><div class="text-muted">Journals</div></div>
+                            <div class="col-4 col-md-2"><div class="fw-bold fs-5" style="color: var(--color-pink);">{{ data.total_confessions|default:0 }}</div><div class="text-muted">Confessions</div></div>
+                            <div class="col-4 col-md-2"><div class="fw-bold fs-5" style="color: var(--color-pink);">{{ data.current_streak|default:0 }}</div><div class="text-muted">Day streak</div></div>
+                            <div class="col-4 col-md-2"><div class="fw-bold fs-5" style="color: var(--color-pink);">{{ data.total_yana_chats|default:0 }}</div><div class="text-muted">Yana chats</div></div>
+                            <div class="col-4 col-md-2"><div class="fw-bold fs-5" style="color: var(--color-pink);">{{ data.total_blog_posts|default:0 }}</div><div class="text-muted">Blog (author)</div></div>
+                        </div>
+                        <p class="small text-muted mt-3 mb-0">Weekly goal: {{ weekly_goal.progress }} / {{ weekly_goal.target_entries }} journal entries this week.</p>
+                    </div>
 
-                        <div class="text-end mt-4">
-                            <button class="btn btn-outline-custom" data-bs-toggle="list" href="#list-settings" role="tab" aria-controls="list-settings">
-                                <i class="fas fa-edit me-1"></i> Go to Settings
-                            </button>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="card-custom p-3 h-100">
+                                <h4 class="h6" style="color: var(--color-teal);">Mood calendar (last 35 days)</h4>
+                                <p class="small text-muted">Darker = stronger mood signal from your entries.</p>
+                                <div class="heatmap-grid" id="heatmap-root"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-custom p-3 h-100">
+                                <h4 class="h6" style="color: var(--color-teal);">Sentiment trend</h4>
+                                <canvas id="sentimentChart" height="180"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if monthly_insight %}
+                    <div class="card-custom p-3 mb-4">
+                        <h4 class="h6" style="color: var(--color-pink);">This month in your words</h4>
+                        <p class="mb-0 small">{{ monthly_insight }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if memory_last_year %}
+                    <div class="card-custom p-3 mb-4 border-start border-4" style="border-color: var(--color-teal) !important;">
+                        <h4 class="h6">This time last year</h4>
+                        <p class="small text-muted mb-1">{{ memory_last_year.date }}</p>
+                        <p class="fw-semibold mb-1">{{ memory_last_year.title }}</p>
+                        <p class="small mb-0">{{ memory_last_year.snippet }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-custom p-3 mb-4">
+                        <h4 class="h6" style="color: var(--color-teal);">Milestones</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for b in badge_rows %}
+                            <span class="badge bg-light text-dark border badge-pill" title="{{ b.label }}">{{ b.label }}</span>
+                            {% empty %}
+                            <span class="text-muted small">Keep journaling and connecting — milestones appear here.</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
-                    
-                    <div class="card-custom mb-4 shadow-sm">
-                        <div class="card-header bg-warning text-dark p-3" style="background-color: var(--color-accent-soft) !important;">
-                            <h5 style="color: var(--color-teal);"><i class="fas fa-lock me-2"></i> Security: Change Password</h5>
-                        </div>
-                        <div class="card-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="currentPassword" class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" id="currentPassword" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="newPassword" class="form-label">New Password</label>
-                                    <input type="password" class="form-control" id="newPassword" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="confirmNewPassword" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary-custom">Update Password</button>
-                            </form>
-                        </div>
+                <div class="tab-pane fade" id="tab-journal">
+                    <h3 class="h5 mb-3" style="color: var(--color-teal);">Journal entries &amp; AI tags</h3>
+                    <p class="small text-muted">Keyword cloud from your writing (respects your AI analysis consent).</p>
+                    <div class="card-custom p-4 mb-4 kw-cloud">
+                        {% for word, cnt in keyword_cloud %}
+                        <span class="kw" style="font-size: {% if cnt > 5 %}1.35rem{% elif cnt > 2 %}1.15rem{% else %}1rem{% endif %};">{{ word }}</span>
+                        {% empty %}
+                        <span class="text-muted">Write a few journal entries to see recurring themes.</span>
+                        {% endfor %}
                     </div>
-
-                    <div class="card-custom shadow-sm">
-                        <div class="card-header p-3" style="background-color: var(--color-teal) !important; color: white;">
-                            <h5><i class="fas fa-shield-alt me-2"></i> Privacy and Data</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="anonToggle" checked>
-                                <label class="form-check-label" for="anonToggle">Remain Anonymous in Blog Posts</label>
-                                <small class="d-block text-muted">Your identity will be masked when posting to the community blog.</small>
+                    <div class="list-group">
+                        {% for e in recent_journals %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ e.title|truncatechars:60 }}</strong>
+                                <small class="text-muted">{{ e.entry_date|date:"M j" }}</small>
                             </div>
-                            <div class="form-check form-switch mb-4">
-                                <input class="form-check-input" type="checkbox" id="dataCollectionToggle">
-                                <label class="form-check-label" for="dataCollectionToggle">Allow AI Chatbot to improve from anonymized data</label>
-                                <small class="d-block text-muted">Helps improve the support model. Your data remains private.</small>
-                            </div>
-                            <hr>
-                            <button type="button" class="btn btn-outline-danger">Download My Data</button>
-                            <button type="button" class="btn btn-danger float-end">Deactivate Account</button>
+                            {% if e.mood %}<span class="badge bg-secondary mt-1">{{ e.get_mood_display }}</span>{% endif %}
+                            {% if e.sentiment_analysis %}<span class="badge bg-info text-dark mt-1">{{ e.sentiment_analysis.state }}</span>{% endif %}
                         </div>
+                        {% empty %}
+                        <p class="text-muted">No entries yet.</p>
+                        {% endfor %}
                     </div>
-
+                    <a href="{% url 'journal' %}" class="btn btn-primary-custom btn-sm mt-3">Go to journal</a>
                 </div>
+
+                <div class="tab-pane fade" id="tab-confessions">
+                    <h3 class="h5 mb-3" style="color: var(--color-teal);">Your confessions</h3>
+                    <p class="small text-muted">Toggle anonymity per post or publish drafts.</p>
+                    {% for c in user_confessions %}
+                    <div class="card-custom p-3 mb-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <strong>{{ c.title }}</strong>
+                            {% if c.is_draft %}<span class="badge bg-warning text-dark">Draft</span>{% endif %}
+                            {% if c.is_anonymous %}<span class="badge bg-secondary">Anonymous</span>{% else %}<span class="badge" style="background: var(--color-accent-soft); color: var(--color-teal);">Named</span>{% endif %}
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            {% if c.is_draft %}
+                            <form method="post" action="{% url 'publish_confession' c.id %}">{% csrf_token %}<button class="btn btn-primary-custom">Publish</button></form>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-secondary toggle-anon-btn" data-id="{{ c.id }}" data-anon="{{ c.is_anonymous|yesno:'true,false' }}">Toggle anonymity</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No confessions yet.</p>
+                    {% endfor %}
+                    <a href="{% url 'confessionals' %}" class="btn btn-outline-custom btn-sm mt-2">Open confessionals</a>
+                </div>
+
+                <div class="tab-pane fade" id="tab-saved">
+                    <h3 class="h5 mb-3" style="color: var(--color-teal);">Saved blog posts</h3>
+                    {% for bm in bookmarked_posts %}
+                    <div class="mb-2"><a href="{% url 'blog_post_detail' bm.post.slug %}">{{ bm.post.title }}</a></div>
+                    {% empty %}
+                    <p class="text-muted small">Save posts from any article page with the bookmark button.</p>
+                    {% endfor %}
+                    <h4 class="h6 mt-4" style="color: var(--color-pink);">Yana session recaps</h4>
+                    {% for r in chat_recaps %}
+                    <div class="small border-start border-2 ps-2 mb-2"><strong>{{ r.title }}</strong><p class="mb-0 text-muted">{{ r.summary }}</p></div>
+                    {% empty %}
+                    <p class="text-muted small">Chat with Yana — short recaps appear here.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="tab-pane fade" id="tab-privacy">
+                    <h3 class="h5 mb-3" style="color: var(--color-teal);">Community identity</h3>
+                    <form method="post" action="{% url 'profile_update_identity' %}" class="card-custom p-4 mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Therapeutic nickname</label>
+                            <input type="text" name="community_nickname" class="form-control" maxlength="64" value="{{ profile.community_nickname }}" placeholder="How you want to appear when not anonymous">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Calming avatar</label>
+                            <select name="community_avatar" class="form-select">
+                                {% for val, emoji, label in avatar_choices %}
+                                <option value="{{ val }}" {% if profile.community_avatar == val %}selected{% endif %}>{{ emoji }} {{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom btn-sm">Save identity</button>
+                    </form>
+
+                    <h3 class="h5 mb-3">Privacy defaults</h3>
+                    <form method="post" action="{% url 'profile_update_privacy' %}" class="card-custom p-4 mb-4">
+                        {% csrf_token %}
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="default_confession_anonymous" id="defAnon" {% if profile.default_confession_anonymous %}checked{% endif %}>
+                            <label class="form-check-label" for="defAnon">Always default new confessions to anonymous</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="ai_journal_analysis_consent" id="aiConsent" {% if profile.ai_journal_analysis_consent %}checked{% endif %}>
+                            <label class="form-check-label" for="aiConsent">Allow AI keyword sentiment on journal entries (stored on each entry)</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom btn-sm">Save privacy</button>
+                    </form>
+
+                    <h3 class="h5 mb-3">Weekly journaling goal</h3>
+                    <form method="post" action="{% url 'profile_weekly_goal' %}" class="card-custom p-4 mb-4">
+                        {% csrf_token %}
+                        <label class="form-label">Target entries this week (1–14)</label>
+                        <input type="number" name="target_entries" class="form-control" min="1" max="14" value="{{ weekly_goal.target_entries }}">
+                        <button type="submit" class="btn btn-outline-custom btn-sm mt-2">Update goal</button>
+                    </form>
+
+                    <h3 class="h5 mb-3">Safety plan</h3>
+                    <p class="small text-muted">Emergency contacts and coping strategies — editable anytime. Not a substitute for professional care.</p>
+                    <div class="card-custom p-4 mb-4" id="safety-plan-root">
+                        <h6>Emergency contacts</h6>
+                        {% for c in emergency_contacts %}
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-5"><input type="text" class="form-control form-control-sm c-name" placeholder="Name" value="{{ c.name }}"></div>
+                            <div class="col-md-5"><input type="text" class="form-control form-control-sm c-phone" placeholder="Phone" value="{{ c.phone }}"></div>
+                        </div>
+                        {% endfor %}
+                        <h6 class="mt-3">Coping strategies</h6>
+                        {% for s in coping_strategies %}
+                        <input type="text" class="form-control form-control-sm mb-2 strat" value="{{ s }}" placeholder="e.g. breathing, walk outside, call someone">
+                        {% empty %}
+                        <input type="text" class="form-control form-control-sm mb-2 strat" placeholder="Add a strategy">
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-primary-custom btn-sm" id="save-safety-plan">Save safety plan</button>
+
+                    <h3 class="h5 mt-4 mb-3">Account security</h3>
+                    <div class="card-custom p-4 mb-4">
+                        <p class="small text-muted mb-2">Update your sign-in password. You will stay logged in on this device.</p>
+                        <a href="{% url 'password_change' %}" class="btn btn-outline-secondary btn-sm">Change password</a>
+                    </div>
+
+                    <h3 class="h5 mb-3">Your data</h3>
+                    <a href="{% url 'profile_export_data' %}" class="btn btn-outline-secondary btn-sm">Download my data (JSON)</a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const heatmap = {{ heatmap_json|safe }};
+  const root = document.getElementById('heatmap-root');
+  if (root && Array.isArray(heatmap)) {
+    heatmap.forEach(function(d) {
+      const el = document.createElement('div');
+      el.className = 'heatmap-cell l' + Math.min(5, d.level);
+      el.title = d.date + (d.has_entry ? '' : ' — no entry');
+      root.appendChild(el);
+    });
+  }
+  const series = {{ sentiment_chart_json|safe }};
+  const ctx = document.getElementById('sentimentChart');
+  if (ctx && Array.isArray(series) && series.length > 0 && typeof Chart !== 'undefined') {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: series.map(function(s) { return s.t; }),
+        datasets: [{
+          label: 'Sentiment (scaled)',
+          data: series.map(function(s) { return s.score; }),
+          borderColor: '#008080',
+          tension: 0.2,
+          fill: false,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { min: -1, max: 1 } }
+      }
+    });
+  }
+})();
+
+(function() {
+  const root = document.getElementById('safety-plan-root');
+  document.getElementById('save-safety-plan').addEventListener('click', function() {
+    const names = root.querySelectorAll('.c-name');
+    const phones = root.querySelectorAll('.c-phone');
+    const emergency_contacts = [];
+    for (let i = 0; i < names.length; i++) {
+      emergency_contacts.push({ name: names[i].value, phone: phones[i] ? phones[i].value : '' });
+    }
+    const coping_strategies = Array.from(root.querySelectorAll('.strat')).map(function(el) { return el.value; }).filter(Boolean);
+    fetch('{% url "profile_safety_plan_save" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({ emergency_contacts: emergency_contacts, coping_strategies: coping_strategies })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.success) alert('Safety plan saved.');
+    });
+  });
+})();
+
+document.querySelectorAll('.toggle-anon-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const id = this.dataset.id;
+    fetch('/confessionals/' + id + '/anonymous/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({})
+    }).then(function() { location.reload(); });
+  });
+});
+if (window.location.hash) {
+  var t = document.querySelector('a[href="' + window.location.hash + '"]');
+  if (t) { t.click(); }
+}
+</script>
 {% endblock main %}

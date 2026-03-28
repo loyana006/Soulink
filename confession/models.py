@@ -18,6 +18,7 @@ class ConfessionModal(models.Model):
     topic = models.CharField(
         max_length=50, choices=TOPIC_CHOICE, default="OTHERS", blank=False
     )
+    is_draft = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now=True)
 
     @property

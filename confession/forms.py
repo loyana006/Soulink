@@ -5,7 +5,7 @@ from confession.models import ConfessionModal
 class ConfessionEntryForm(forms.ModelForm):
     class Meta:
         model = ConfessionModal
-        fields = ["title", "content", "topic", "is_anonymous"]
+        fields = ["title", "content", "topic", "is_anonymous", "is_draft"]
 
         widgets = {
             "title": forms.TextInput(
@@ -17,7 +17,7 @@ class ConfessionEntryForm(forms.ModelForm):
             "content": forms.Textarea(
                 attrs={
                     "class": "form-control-custom mb-3",
-                    "placeholder": "Share your feelings, story, or question anonymously...",
+                    "placeholder": "What's on your mind?",
                 }
             ),
             "topic": forms.Select(
@@ -26,4 +26,5 @@ class ConfessionEntryForm(forms.ModelForm):
                 }
             ),
             "is_anonymous": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "is_draft": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }

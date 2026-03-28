@@ -5,139 +5,435 @@
     {% include 'components/sidebar.html' %}
 
     <main class="dashboard-main-content">
-        
-        <h2 class="section-title text-start mb-2" style="color: var(--color-pink);">Anonymous Confessionals</h2>
-        <p class="lead text-muted mb-4">Share your truth without fear of judgment. You are not alone.</p>
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="confession-page-header mb-3">
+            <h2 class="section-title mb-1" style="color: var(--color-pink);">Confessionals</h2>
+            <p class="text-muted small mb-0">Share and connect — your feed, Twitter-style.</p>
+        </div>
 
-        <div class="row">
-            <div class="col-lg-8">
-                {% if confessions %}
-                    {% for confession in confessions %}
-                    <div class="card-custom mb-4 confession-card" data-confession-id="{{ confession.id }}">
-                        <h4 class="card-title-main" style="color: var(--color-teal);">{{ confession.title }}</h4>
-                        <small class="text-muted">Posted at {{ confession.created_at|date:"M d, Y H:i" }} | {% if confession.is_anonymous %} Anonymous User {% else %} {{ confession.user.username }} {% endif %}</small>
-                        <p class="mt-2">{{ confession.content }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                            <span class="badge bg-secondary">#{{ confession.topic }}</span>
-                            <div class="d-flex align-items-center gap-3">
-                                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none like-btn {% if confession.id in liked_confession_ids %}liked{% endif %}" data-confession-id="{{ confession.id }}" title="Support">
-                                    <i class="fas fa-heart me-1 like-icon"></i>
-                                    <span class="like-count">{{ confession.like_count }}</span> Supports
-                                </button>
-                                <span class="text-muted">
-                                    <i class="fas fa-comment me-1" style="color: var(--color-teal);"></i>
-                                    <span class="comment-count">{{ confession.comment_count }}</span> Replies
-                                </span>
-                                <button type="button" class="btn btn-sm btn-outline-secondary comment-toggle-btn" data-confession-id="{{ confession.id }}" title="Add comment">
-                                    <i class="fas fa-reply me-1"></i> Reply
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Comment form (hidden by default) -->
-                        <div class="comment-form-container mt-3" id="comment-form-{{ confession.id }}" style="display: none;">
-                            <div class="input-group">
-                                <input type="text" class="form-control comment-input" placeholder="Write a supportive comment..." maxlength="1000" data-confession-id="{{ confession.id }}">
-                                <div class="form-check form-check-inline ms-2 align-self-center">
-                                    <input class="form-check-input comment-anonymous" type="checkbox" id="anon-{{ confession.id }}" checked data-confession-id="{{ confession.id }}">
-                                    <label class="form-check-label small" for="anon-{{ confession.id }}">Anonymous</label>
+        <div class="row justify-content-center">
+            <div class="col-xl-7 col-lg-8">
+                <!-- Compose (top of feed) -->
+                <div class="tweet-compose mb-3">
+                    <div class="tweet-row">
+                        <div class="tweet-avatar tweet-avatar-me" aria-hidden="true" title="Your community avatar">{{ user_profile.avatar_emoji }}</div>
+                        <div class="tweet-body">
+                            <form method="POST" class="compose-form">
+                                {% csrf_token %}
+                                <label class="visually-hidden" for="id_title">Title</label>
+                                {{ form.title }}
+                                {{ form.title.errors }}
+                                <label class="visually-hidden" for="id_content">What's on your mind?</label>
+                                {{ form.content }}
+                                {{ form.content.errors }}
+                                <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                                    {{ form.topic }}
+                                    {{ form.topic.errors }}
                                 </div>
-                                <button type="button" class="btn btn-primary-custom comment-submit-btn" data-confession-id="{{ confession.id }}">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Comments list -->
-                        <div class="comments-list mt-3" id="comments-{{ confession.id }}">
-                            {% for comment in confession.comments.all %}
-                            <div class="small border-start border-2 border-light ps-2 mb-2 py-1">
-                                <strong>{% if comment.is_anonymous %}Anonymous{% else %}{{ comment.user.username }}{% endif %}</strong>
-                                <span class="text-muted">· {{ comment.created_at|date:"M d, Y" }}</span>
-                                <p class="mb-0 mt-1">{{ comment.content }}</p>
-                            </div>
-                            {% endfor %}
+                                <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
+                                    <div class="form-check mb-0">
+                                        {{ form.is_draft }}
+                                        <label class="form-check-label small" for="{{ form.is_draft.id_for_label }}">Save as draft</label>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                                    <div class="form-check mb-0">
+                                        {{ form.is_anonymous }}
+                                        <label class="form-check-label small" for="{{ form.is_anonymous.id_for_label }}">Post anonymously</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary-custom btn-sm px-4 rounded-pill">Post</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
+                </div>
+
+                <div class="confession-feed border-feed">
+                {% if confessions %}
+                    {% for confession in confessions %}
+                    <article class="tweet-post confession-card" data-confession-id="{{ confession.id }}">
+                        <div class="tweet-row">
+                            <div class="tweet-avatar" aria-hidden="true">
+                                {% if confession.is_anonymous %}?{% elif confession.user.profile %}{{ confession.user.profile.avatar_emoji }}{% else %}{{ confession.user.username.0|upper }}{% endif %}
+                            </div>
+                            <div class="tweet-body">
+                                <div class="tweet-meta">
+                                    <span class="tweet-display-name">
+                                        {% if confession.is_anonymous %}Anonymous{% elif confession.user.profile %}{{ confession.user.profile.community_display_name }}{% else %}{{ confession.user.username }}{% endif %}
+                                    </span>
+                                    <span class="tweet-handle">
+                                        {% if confession.is_anonymous %}@anonymous{% else %}@{{ confession.user.username }}{% endif %}
+                                    </span>
+                                    <span class="tweet-dot">·</span>
+                                    <time class="tweet-time" datetime="{{ confession.created_at|date:'c' }}">{{ confession.created_at|timesince }} ago</time>
+                                    <span class="tweet-dot">·</span>
+                                    <span class="tweet-topic">#{{ confession.topic }}</span>
+                                </div>
+                                {% if confession.title %}
+                                <h3 class="tweet-title-text">{{ confession.title }}</h3>
+                                {% endif %}
+                                <p class="tweet-text">{{ confession.content|linebreaksbr }}</p>
+
+                                <div class="tweet-actions" role="toolbar">
+                                    <button type="button" class="tweet-action-btn comment-toggle-btn {% if confession.comment_count %}has-count{% endif %}" data-confession-id="{{ confession.id }}" title="Replies">
+                                        <span class="tweet-action-icon"><i class="far fa-comment"></i></span>
+                                        <span class="tweet-action-count comment-count">{{ confession.comment_count }}</span>
+                                    </button>
+                                    <button type="button" class="tweet-action-btn like-btn {% if confession.id in liked_confession_ids %}is-liked liked{% endif %}" data-confession-id="{{ confession.id }}" title="Support">
+                                        <span class="tweet-action-icon"><i class="{% if confession.id in liked_confession_ids %}fas{% else %}far{% endif %} fa-heart like-icon"></i></span>
+                                        <span class="tweet-action-count like-count">{{ confession.like_count }}</span>
+                                    </button>
+                                    {% if confession.user_id == user.id %}
+                                    <button type="button" class="tweet-action-btn tweet-action-delete delete-confession-btn" data-confession-id="{{ confession.id }}" title="Delete post">
+                                        <span class="tweet-action-icon"><i class="far fa-trash-alt"></i></span>
+                                    </button>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Thread: replies + composer -->
+                                <div class="tweet-thread" id="thread-{{ confession.id }}" hidden>
+                                    <div class="tweet-thread-line"></div>
+                                    <div class="comments-list tweet-comments" id="comments-{{ confession.id }}">
+                                        {% for comment in confession.comments.all %}
+                                        <div class="tweet-comment" data-comment-id="{{ comment.id }}">
+                                            <div class="tweet-comment-avatar" aria-hidden="true">
+                                                {% if comment.is_anonymous %}?{% else %}{{ comment.user.username.0|upper }}{% endif %}
+                                            </div>
+                                            <div class="tweet-comment-body">
+                                                <div class="tweet-meta small">
+                                                    <span class="tweet-display-name">
+                                                        {% if comment.is_anonymous %}Anonymous{% else %}{{ comment.user.username }}{% endif %}
+                                                    </span>
+                                                    <span class="tweet-handle">
+                                                        {% if comment.is_anonymous %}@anonymous{% else %}@{{ comment.user.username }}{% endif %}
+                                                    </span>
+                                                    <span class="tweet-dot">·</span>
+                                                    <time>{{ comment.created_at|date:"M j" }}</time>
+                                                </div>
+                                                <p class="tweet-comment-text mb-0">{{ comment.content|linebreaksbr }}</p>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <p class="tweet-no-replies small text-muted mb-2">No replies yet. Be the first to respond.</p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="tweet-reply-box mt-2">
+                                        <input type="text" class="form-control form-control-sm comment-input rounded-pill" placeholder="Post your reply" maxlength="1000" data-confession-id="{{ confession.id }}" autocomplete="off">
+                                        <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
+                                            <div class="form-check form-check-inline mb-0">
+                                                <input class="form-check-input comment-anonymous" type="checkbox" id="anon-{{ confession.id }}" checked data-confession-id="{{ confession.id }}">
+                                                <label class="form-check-label small" for="anon-{{ confession.id }}">Anonymous</label>
+                                            </div>
+                                            <button type="button" class="btn btn-primary-custom btn-sm rounded-pill comment-submit-btn" data-confession-id="{{ confession.id }}">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                     {% endfor %}
                 {% else %}
-                    No Confessions...
+                    <div class="tweet-empty p-4 text-center text-muted">
+                        <p class="mb-0">No posts yet. Say something above to start the feed.</p>
+                    </div>
                 {% endif %}
+                </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card-custom" style="background-color: var(--color-accent-soft);">
-                    <h4 class="h5 mb-3" style="color: var(--color-pink);"><i class="fas fa-pencil-alt me-2"></i> Post Your Confession</h4>
-                    <form method="POST">
-                        {% csrf_token %}
-
-                        {{ form.title }}
-                        {{ form.title.errors }}
-
-                        {{ form.content }}
-                        {{ form.content.errors }}
-
-                        {{ form.topic }}
-                        {{ form.topic.errors }}
-
-                        <div class="form-check mb-3">
-                            {{ form.is_anonymous }}
-                            <label class="form-check-label" for="anonymousCheck">Post Anonymously (Default)</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary-custom w-100">Publish Confession</button>
-                    </form>
+            <div class="col-xl-4 col-lg-4 d-none d-lg-block">
+                <div class="card-custom p-3 sticky-top" style="top: 1rem; background: var(--color-accent-soft);">
+                    <h3 class="h6" style="color: var(--color-teal);"><i class="fas fa-leaf me-2"></i>Community care</h3>
+                    <p class="small text-muted mb-0">Replies are public. Be kind. You can delete your own posts anytime.</p>
                 </div>
             </div>
         </div>
-
     </main>
 </div>
 
 <style>
-.like-btn .like-icon { color: #adb5bd; transition: color 0.2s; }
-.like-btn:hover .like-icon { color: var(--color-pink); }
-.like-btn.liked .like-icon { color: #dc3545 !important; }
-.comment-form-container .input-group { flex-wrap: nowrap; }
+.confession-feed.border-feed {
+    border: 1px solid rgba(0, 128, 128, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+}
+.tweet-compose, .tweet-post {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.tweet-compose {
+    background: var(--color-light-mint);
+}
+.tweet-post:last-child {
+    border-bottom: none;
+}
+.tweet-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+.tweet-avatar, .tweet-avatar-me, .tweet-comment-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent-soft), #fff);
+    border: 2px solid rgba(0, 128, 128, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--color-teal);
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+.tweet-avatar-me {
+    background: linear-gradient(135deg, var(--color-pink), #ffb6c1);
+    color: #fff;
+    border-color: rgba(255, 105, 180, 0.4);
+}
+.tweet-body {
+    flex: 1;
+    min-width: 0;
+}
+.tweet-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+}
+.tweet-display-name {
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin-right: 0.25rem;
+}
+.tweet-handle, .tweet-time {
+    color: var(--color-text-light);
+}
+.tweet-dot {
+    margin: 0 0.2rem;
+    color: #ccc;
+}
+.tweet-topic {
+    color: var(--color-teal);
+    font-weight: 600;
+}
+.tweet-title-text {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0.35rem 0 0.25rem;
+    color: var(--color-text-dark);
+}
+.tweet-text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--color-text-dark);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.tweet-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.65rem;
+    max-width: 280px;
+}
+.tweet-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: none;
+    background: none;
+    padding: 0.25rem 0;
+    color: var(--color-text-light);
+    font-size: 0.8rem;
+    transition: color 0.15s, transform 0.1s;
+}
+.tweet-action-btn:hover {
+    color: var(--color-teal);
+}
+.tweet-action-btn.is-liked, .tweet-action-btn.liked {
+    color: var(--color-pink);
+}
+.tweet-action-btn.is-liked .like-icon, .tweet-action-btn.liked .like-icon {
+    color: var(--color-pink);
+}
+.tweet-action-delete:hover {
+    color: #dc3545;
+}
+.tweet-action-count {
+    font-variant-numeric: tabular-nums;
+    min-width: 1ch;
+}
+.tweet-thread {
+    position: relative;
+    margin-top: 0.75rem;
+    padding-left: 0.25rem;
+}
+.tweet-thread-line {
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0.5rem;
+    width: 2px;
+    background: rgba(0, 128, 128, 0.12);
+    border-radius: 1px;
+}
+.tweet-comments {
+    position: relative;
+    padding-left: 2.5rem;
+}
+.tweet-comment {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+.tweet-comment:last-child {
+    border-bottom: none;
+}
+.tweet-comment-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+.tweet-comment-text {
+    font-size: 0.875rem;
+    color: var(--color-text-dark);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.tweet-reply-box {
+    padding-left: 2.5rem;
+    position: relative;
+}
+.compose-form input[type="text"],
+.compose-form textarea,
+.compose-form select {
+    border-radius: 8px;
+}
+.compose-form textarea {
+    min-height: 80px;
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    const csrfToken = document.querySelector('.compose-form [name=csrfmiddlewaretoken]')?.value || '';
 
-    // Like toggle
+    function appendComment(listEl, comment) {
+        const empty = listEl.querySelector('.tweet-no-replies');
+        if (empty) empty.remove();
+
+        const row = document.createElement('div');
+        row.className = 'tweet-comment';
+        row.dataset.commentId = String(comment.id);
+
+        const av = document.createElement('div');
+        av.className = 'tweet-comment-avatar';
+        av.setAttribute('aria-hidden', 'true');
+        av.textContent = comment.is_anonymous ? '?' : (comment.username && comment.username[0] ? comment.username[0].toUpperCase() : '?');
+
+        const body = document.createElement('div');
+        body.className = 'tweet-comment-body';
+
+        const meta = document.createElement('div');
+        meta.className = 'tweet-meta small';
+
+        const name = document.createElement('span');
+        name.className = 'tweet-display-name';
+        name.textContent = comment.username;
+
+        const handle = document.createElement('span');
+        handle.className = 'tweet-handle';
+        handle.textContent = comment.is_anonymous ? '@anonymous' : '@' + comment.username;
+
+        const dot = document.createElement('span');
+        dot.className = 'tweet-dot';
+        dot.textContent = '·';
+
+        const time = document.createElement('time');
+        time.textContent = comment.created_at;
+
+        meta.append(name, ' ', handle, dot, time);
+
+        const p = document.createElement('p');
+        p.className = 'tweet-comment-text mb-0';
+        p.textContent = comment.content;
+
+        body.append(meta, p);
+        row.append(av, body);
+        listEl.appendChild(row);
+    }
+
+    document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.confessionId;
+            const thread = document.getElementById('thread-' + id);
+            if (!thread) return;
+            const open = thread.hidden;
+            thread.hidden = !open;
+            if (open) {
+                const input = thread.querySelector('.comment-input');
+                if (input) input.focus();
+            }
+        });
+    });
+
     document.querySelectorAll('.like-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.dataset.confessionId;
             const card = this.closest('.confession-card');
             const countEl = card.querySelector('.like-count');
+            const icon = this.querySelector('.like-icon');
             try {
-                const res = await fetch(`/confessionals/${id}/like/`, {
+                const res = await fetch('/confessionals/' + id + '/like/', {
                     method: 'POST',
                     headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
                     body: JSON.stringify({})
                 });
                 const data = await res.json();
-                console.log(data);
                 if (data.success) {
                     countEl.textContent = data.like_count;
+                    this.classList.toggle('is-liked', data.liked);
                     this.classList.toggle('liked', data.liked);
+                    if (icon) {
+                        icon.classList.toggle('far', !data.liked);
+                        icon.classList.toggle('fas', data.liked);
+                    }
                 }
-                window.location.reload();
             } catch (e) { console.error(e); }
         });
     });
 
-    // Toggle comment form
-    document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+    document.querySelectorAll('.delete-confession-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            if (!confirm('Delete this post? This cannot be undone.')) return;
             const id = this.dataset.confessionId;
-            const form = document.getElementById(`comment-form-${id}`);
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            if (form.style.display === 'block') {
-                form.querySelector('.comment-input').focus();
-            }
+            try {
+                const res = await fetch('/confessionals/' + id + '/delete/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const card = this.closest('.confession-card');
+                    if (card) card.remove();
+                }
+            } catch (e) { console.error(e); }
         });
     });
 
-    // Submit comment
     document.querySelectorAll('.comment-submit-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.dataset.confessionId;
@@ -147,22 +443,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const content = input.value.trim();
             if (!content) return;
             try {
-                const res = await fetch(`/confessionals/${id}/comment/`, {
+                const res = await fetch('/confessionals/' + id + '/comment/', {
                     method: 'POST',
                     headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content, is_anonymous: anonCheck.checked })
+                    body: JSON.stringify({ content: content, is_anonymous: anonCheck.checked })
                 });
                 const data = await res.json();
                 if (data.success) {
                     input.value = '';
                     card.querySelector('.comment-count').textContent = data.comment_count;
-                    const commentsList = document.getElementById(`comments-${id}`);
-                    const div = document.createElement('div');
-                    div.className = 'small border-start border-2 border-light ps-2 mb-2 py-1';
-                    div.innerHTML = `<strong>${data.comment.username}</strong> <span class="text-muted">· ${data.comment.created_at}</span><p class="mb-0 mt-1">${data.comment.content}</p>`;
-                    commentsList.appendChild(div);
-                    document.getElementById(`comment-form-${id}`).style.display = 'none';
-                    window.location.reload();
+                    appendComment(document.getElementById('comments-' + id), data.comment);
                 }
             } catch (e) { console.error(e); }
         });

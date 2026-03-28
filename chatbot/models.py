@@ -16,6 +16,10 @@ class ChatSession(models.Model):
         related_name="chat_sessions",
     )
     title = models.CharField(max_length=255, blank=True)
+    topic_summary = models.TextField(
+        blank=True,
+        help_text="Short recap of themes (e.g. from Rasa actions or heuristics).",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

@@ -13,8 +13,15 @@
             <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'home' %}#features">Features</a></li>
             <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'support' %}">Support</a></li>
             {% if user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'my_profile' %}">Profile</a></li>
-            <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="nav-item dropdown">
+                <a class="nav-link nav-link-custom dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                    <li><a class="dropdown-item" href="{% url 'my_profile' %}">Profile &amp; insights</a></li>
+                    <li><a class="dropdown-item" href="{% url 'my_profile' %}#tab-privacy">Safety plan &amp; privacy</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                </ul>
+            </li>
             <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="{% url 'logout' %}">Logout</a></li>
             {% else %}
             <li class="nav-item"><a class="nav-link nav-link-custom" href="{% url 'login' %}">Login</a></li>

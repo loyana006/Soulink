@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "journal",
     "confession",
     "chatbot",
+    "blog",
 ]
 
 MIDDLEWARE = [

@@ -17,13 +17,14 @@ def chatbot(request):
     return render(request, "yana.html")
 
 
-def confessionals(request):
-    return render(request, "confessionals.html")
-
-
-def blog(request):
-    return render(request, "blog.html")
-
-
 def dashboard(request):
-    return render(request, "dashboard.html")
+    from blog.models import BlogPost
+
+    recent_blog_posts = BlogPost.objects.filter(is_published=True).order_by(
+        "-published_at"
+    )[:3]
+    return render(
+        request,
+        "dashboard.html",
+        {"recent_blog_posts": recent_blog_posts},
+    )

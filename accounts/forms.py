@@ -1,7 +1,21 @@
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import CustomUser
+
+
+class PasswordChangeForm(DjangoPasswordChangeForm):
+    """Change password with the same input styling as login/signup."""
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user, *args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs.setdefault("class", "form-control form-control-custom")
+            if name == "old_password":
+                field.widget.attrs.setdefault("autocomplete", "current-password")
+            else:
+                field.widget.attrs.setdefault("autocomplete", "new-password")
 
 
 class LoginForm(forms.Form):

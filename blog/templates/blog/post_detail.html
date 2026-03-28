@@ -1,0 +1,75 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+{% csrf_token %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        <nav class="mb-3" aria-label="Breadcrumb">
+            <a href="{% url 'blog' %}" class="text-decoration-none" style="color: var(--color-teal);"><i class="fas fa-arrow-left me-1"></i> Back to blog</a>
+        </nav>
+
+        <article class="card-custom p-4 p-md-5 mb-4">
+            <header class="mb-4">
+                <p class="small text-muted mb-2">
+                    <span class="badge rounded-pill" style="background: var(--color-accent-soft); color: var(--color-teal);">{{ post.get_category_display }}</span>
+                    <span class="ms-2"><i class="fas fa-calendar-alt me-1"></i>{{ post.published_at|date:"F j, Y" }}</span>
+                    {% if post.author %}
+                    <span class="ms-2"><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
+                    {% endif %}
+                </p>
+                <h1 class="h2 mb-0" style="color: var(--color-pink);">{{ post.title }}</h1>
+                {% if post.excerpt %}
+                <p class="lead text-muted mt-3 mb-0">{{ post.excerpt }}</p>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <div class="mt-3">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="blog-bookmark-btn" data-post-id="{{ post.id }}">
+                        {% if is_bookmarked %}<i class="fas fa-bookmark me-1"></i>Saved{% else %}<i class="far fa-bookmark me-1"></i>Save for later{% endif %}
+                    </button>
+                </div>
+                {% endif %}
+            </header>
+            <div class="blog-article-body" style="color: var(--color-text-dark); line-height: 1.75;">
+                {{ post.body|linebreaks }}
+            </div>
+        </article>
+
+        {% if related_posts %}
+        <section>
+            <h2 class="h5 mb-3" style="color: var(--color-teal);">Related in {{ post.get_category_display }}</h2>
+            <div class="row g-3">
+                {% for p in related_posts %}
+                <div class="col-md-4">
+                    <div class="article-preview-card p-3 h-100">
+                        <a href="{% url 'blog_post_detail' p.slug %}" class="text-decoration-none text-dark">
+                            <h3 class="h6" style="color: var(--color-pink);">{{ p.title }}</h3>
+                            <p class="small text-muted mb-0">{{ p.excerpt|default:p.body|truncatewords:18 }}</p>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+</div>
+{% if user.is_authenticated %}
+<script>
+document.getElementById('blog-bookmark-btn')?.addEventListener('click', function() {
+  const btn = this;
+  const id = btn.dataset.postId;
+  fetch('/blog/post/' + id + '/bookmark/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+    body: '{}'
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      btn.innerHTML = d.saved ? '<i class="fas fa-bookmark me-1"></i>Saved' : '<i class="far fa-bookmark me-1"></i>Save for later';
+    }
+  });
+});
+</script>
+{% endif %}
+{% endblock main %}
