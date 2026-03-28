@@ -6,6 +6,7 @@ from .forms import (
     LoginForm,
     UserSignUpForm,
 )
+from .backends import EmailOrUsernameBackend
 
 
 def login_view(request):
@@ -20,7 +21,10 @@ def login_view(request):
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
 
-            user = authenticate(username=username, password=password)
+            backend = EmailOrUsernameBackend()
+            user = backend.authenticate(
+                request=request, username=username, password=password
+            )
 
             if user is not None:
                 login(request, user)

@@ -13,16 +13,48 @@
             <div class="col-lg-8">
                 {% if confessions %}
                     {% for confession in confessions %}
-                    <div class="card-custom mb-4">
+                    <div class="card-custom mb-4 confession-card" data-confession-id="{{ confession.id }}">
                         <h4 class="card-title-main" style="color: var(--color-teal);">{{ confession.title }}</h4>
-                        <small class="text-muted">Posted at {{ confession.create_at }}  | {% if confession.is_anonymous %} Anonymous User {% else %} {{ confession.user.username }} {% endif %}</small>
+                        <small class="text-muted">Posted at {{ confession.created_at|date:"M d, Y H:i" }} | {% if confession.is_anonymous %} Anonymous User {% else %} {{ confession.user.username }} {% endif %}</small>
                         <p class="mt-2">{{ confession.content }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="badge bg-secondary">#{{ confession.topic }}</span>
-                            <div>
-                                <i class="fas fa-heart text-danger me-2"></i> 15 Supports
-                                <i class="fas fa-comment ms-3 me-2" style="color: var(--color-teal);"></i> 7 Replies
+                        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                            <span class="badge bg-secondary">#{{ confession.topic }}</span>
+                            <div class="d-flex align-items-center gap-3">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none like-btn {% if confession.id in liked_confession_ids %}liked{% endif %}" data-confession-id="{{ confession.id }}" title="Support">
+                                    <i class="fas fa-heart me-1 like-icon"></i>
+                                    <span class="like-count">{{ confession.like_count }}</span> Supports
+                                </button>
+                                <span class="text-muted">
+                                    <i class="fas fa-comment me-1" style="color: var(--color-teal);"></i>
+                                    <span class="comment-count">{{ confession.comment_count }}</span> Replies
+                                </span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary comment-toggle-btn" data-confession-id="{{ confession.id }}" title="Add comment">
+                                    <i class="fas fa-reply me-1"></i> Reply
+                                </button>
                             </div>
+                        </div>
+                        <!-- Comment form (hidden by default) -->
+                        <div class="comment-form-container mt-3" id="comment-form-{{ confession.id }}" style="display: none;">
+                            <div class="input-group">
+                                <input type="text" class="form-control comment-input" placeholder="Write a supportive comment..." maxlength="1000" data-confession-id="{{ confession.id }}">
+                                <div class="form-check form-check-inline ms-2 align-self-center">
+                                    <input class="form-check-input comment-anonymous" type="checkbox" id="anon-{{ confession.id }}" checked data-confession-id="{{ confession.id }}">
+                                    <label class="form-check-label small" for="anon-{{ confession.id }}">Anonymous</label>
+                                </div>
+                                <button type="button" class="btn btn-primary-custom comment-submit-btn" data-confession-id="{{ confession.id }}">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Comments list -->
+                        <div class="comments-list mt-3" id="comments-{{ confession.id }}">
+                            {% for comment in confession.comments.all %}
+                            <div class="small border-start border-2 border-light ps-2 mb-2 py-1">
+                                <strong>{% if comment.is_anonymous %}Anonymous{% else %}{{ comment.user.username }}{% endif %}</strong>
+                                <span class="text-muted">· {{ comment.created_at|date:"M d, Y" }}</span>
+                                <p class="mb-0 mt-1">{{ comment.content }}</p>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                     {% endfor %}
@@ -58,4 +90,83 @@
 
     </main>
 </div>
+
+<style>
+.like-btn .like-icon { color: #adb5bd; transition: color 0.2s; }
+.like-btn:hover .like-icon { color: var(--color-pink); }
+.like-btn.liked .like-icon { color: #dc3545 !important; }
+.comment-form-container .input-group { flex-wrap: nowrap; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+    // Like toggle
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.confessionId;
+            const card = this.closest('.confession-card');
+            const countEl = card.querySelector('.like-count');
+            try {
+                const res = await fetch(`/confessionals/${id}/like/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                console.log(data);
+                if (data.success) {
+                    countEl.textContent = data.like_count;
+                    this.classList.toggle('liked', data.liked);
+                }
+                window.location.reload();
+            } catch (e) { console.error(e); }
+        });
+    });
+
+    // Toggle comment form
+    document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.confessionId;
+            const form = document.getElementById(`comment-form-${id}`);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            if (form.style.display === 'block') {
+                form.querySelector('.comment-input').focus();
+            }
+        });
+    });
+
+    // Submit comment
+    document.querySelectorAll('.comment-submit-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.confessionId;
+            const card = this.closest('.confession-card');
+            const input = card.querySelector('.comment-input');
+            const anonCheck = card.querySelector('.comment-anonymous');
+            const content = input.value.trim();
+            if (!content) return;
+            try {
+                const res = await fetch(`/confessionals/${id}/comment/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, is_anonymous: anonCheck.checked })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    input.value = '';
+                    card.querySelector('.comment-count').textContent = data.comment_count;
+                    const commentsList = document.getElementById(`comments-${id}`);
+                    const div = document.createElement('div');
+                    div.className = 'small border-start border-2 border-light ps-2 mb-2 py-1';
+                    div.innerHTML = `<strong>${data.comment.username}</strong> <span class="text-muted">· ${data.comment.created_at}</span><p class="mb-0 mt-1">${data.comment.content}</p>`;
+                    commentsList.appendChild(div);
+                    document.getElementById(`comment-form-${id}`).style.display = 'none';
+                    window.location.reload();
+                }
+            } catch (e) { console.error(e); }
+        });
+    });
+});
+</script>
 {% endblock main %}
