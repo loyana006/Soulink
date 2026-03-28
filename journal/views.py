@@ -1,14 +1,13 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from journal.forms import JournalEntryForm
-from django.http.request import HttpRequest
+from django.http import HttpRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from journal.models import JournalEntry
 from django.shortcuts import get_object_or_404
-from django.http.response import JsonResponse
-from django.core.serializers import serialize
 import json
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -21,13 +20,19 @@ def journal(request: HttpRequest):
             entry = form.save(commit=False)
             entry.user = request.user
             entry.save()
+            # Clear draft after successful save
+            if "journal_draft" in request.session:
+                del request.session["journal_draft"]
             return redirect("journal")
 
         context["msg"] = "Invalid Input"
 
     # Get all entries for the user, ordered by most recent first
     past_entries = JournalEntry.objects.filter(user=request.user).order_by('-entry_date')
-    
+
+    # Include any saved draft from session for restore (as JSON for template)
+    draft = request.session.get("journal_draft") or {}
+    context["journal_draft_json"] = mark_safe(json.dumps(draft))
     context["form"] = form
     context["past_entries"] = past_entries
     context["total_entries"] = past_entries.count()
@@ -92,3 +97,23 @@ def delete_journal_entry(request, id=None):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+@csrf_exempt
+def auto_save_draft(request):
+    """
+    Save journal draft to session. Used when user is typing in the add-entry modal
+    to prevent data loss. Draft is stored in session and can be restored.
+    """
+    try:
+        data = json.loads(request.body)
+        title = (data.get("title") or "").strip()[:200]
+        entry = (data.get("entry") or "").strip()[:50000]
+
+        request.session["journal_draft"] = {"title": title, "entry": entry}
+        request.session.modified = True
+        return JsonResponse({"success": True})
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)

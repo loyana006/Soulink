@@ -260,6 +260,7 @@
     </main>
 </div>
 
+<form id="csrf-form" style="display:none">{% csrf_token %}</form>
 <script>
 const entryId = {{ entry.id }};
 
@@ -279,7 +280,7 @@ async function analyzeEntry() {
     analysisPlaceholder.style.display = 'none';
 
     try {
-        const csrfToken = '{% csrf_token %}'
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
         const response = await fetch('{% url "chatbot:analyze_journal_entry" %}', {
             method: 'POST',
             headers: {
