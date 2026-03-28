@@ -13,6 +13,11 @@ nlu:
       - hi there
       - greetings
       - howdy
+      - hey, how are you
+      - hi, I need someone to talk to
+      - hello, can we chat
+      - hey, I just need to vent
+      - hi yana
 
   - intent: goodbye
     examples: |
@@ -26,6 +31,11 @@ nlu:
       - catch you later
       - bye bye
       - see ya
+      - thanks, that helped, bye
+      - talk to you soon
+      - I have to go now
+      - I’ll come back later
+      - that’s all for now, goodbye
 
   - intent: affirm
     examples: |
@@ -75,6 +85,12 @@ nlu:
       - I feel terrible
       - I'm not okay
       - feeling awful
+      - I'm struggling today
+      - having a really bad day
+      - I feel awful right now
+      - not feeling great
+      - I'm having a rough time
+      - things feel really hard
 
   - intent: anxious
     examples: |
@@ -90,6 +106,13 @@ nlu:
       - I'm worried about
       - feeling anxious
       - having anxiety
+      - lately I’ve been feeling really anxious about everything
+      - I can’t stop worrying about my future
+      - my chest feels tight and I’m so nervous
+      - I keep overthinking and it makes me anxious
+      - I wake up feeling anxious for no reason
+      - I’m anxious about my relationships
+      - my thoughts won’t slow down and it scares me
 
   - intent: sad
     examples: |
@@ -104,6 +127,13 @@ nlu:
       - I'm feeling blue
       - feeling sad
       - I'm upset
+      - I feel empty inside
+      - I’ve been crying a lot lately
+      - I don’t enjoy the things I used to
+      - everything feels heavy and pointless
+      - I just feel so low today
+      - I feel like nobody understands me
+      - I’m heartbroken and can’t stop thinking about it
 
   - intent: stressed
     examples: |
@@ -117,6 +147,12 @@ nlu:
       - too much pressure
       - I'm stressed out
       - feeling stressed
+      - work has been extremely stressful lately
+      - I have so many deadlines and it’s overwhelming
+      - I can’t relax, there’s too much on my plate
+      - I’m burned out and exhausted
+      - my responsibilities are stressing me out
+      - I can’t balance work and personal life anymore
 
   - intent: grateful
     examples: |
@@ -142,6 +178,12 @@ nlu:
       - help
       - I'm struggling
       - I need assistance
+      - I don’t know what to do anymore
+      - I feel lost and need guidance
+      - can you just listen to me
+      - I really need emotional support right now
+      - I’m having a hard time coping with everything
+      - I don’t feel okay and I need someone
 
   - intent: tell_story
     examples: |
@@ -166,6 +208,28 @@ nlu:
       - help me decide
       - what's your opinion
       - should I
+      - do you think I should talk to them about this
+      - how do I handle this situation with my friend
+      - what’s the best way to set boundaries here
+      - should I take a break from work
+      - how can I cope with this feeling
+      - do you think therapy would help me
+
+  - intent: crisis
+    examples: |
+      - I want to kill myself
+      - I'm thinking about hurting myself
+      - I want to end my life
+      - I feel like hurting myself
+      - I'm suicidal
+      - I want to die
+      - I'm going to kill myself
+      - I've been cutting myself
+      - I don't want to live anymore
+      - life isn't worth living
+      - I'm planning to end it
+      - I want to self harm
+      - I feel like ending it all
 
   - intent: bot_challenge
     examples: |
@@ -189,3 +253,19 @@ nlu:
       - analyze entry
       - journal analysis
       - emotional analysis
+      - analyze this journal entry and provide an emotional state summary
+      - based on this journal, tell me my emotional state
+      - here is my journal entry, can you analyze it
+      - analyze my journal and summarize how I’m feeling
+      - read this and tell me what emotions you notice
+      - can you analyze this entry and describe my emotional state
+      - analyze this journal entry and provide an emotional state summary: I feel overwhelmed and tired from work
+      - analyze this journal entry and provide an emotional state summary: Today was rough, I felt anxious all day
+      - analyze this journal entry and provide an emotional state summary: I'm grateful for my family and friends
+      - analyze this journal entry and provide an emotional state summary: Feeling sad and lonely lately
+      - analyze this journal entry and provide an emotional state summary: Had a great day, feeling motivated
+      - analyze this journal entry and provide an emotional state summary: Stressed about work deadlines
+      - analyze this journal entry and provide an emotional state summary: Mixed emotions today
+      - analyze this journal entry and provide an emotional state summary: I feel empty and don't know what to do
+      - analyze this journal entry and provide an emotional state summary: Finally feeling hopeful about the future
+      - analyze this journal entry and provide an emotional state summary: Depressed and exhausted

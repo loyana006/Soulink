@@ -1,4 +1,12 @@
 .venv
 .env
+.*/
 
-**/__py_cache__
+__pycache__/
+*.pyc
+*.pyo
+
+rasa/.rasa/
+rasa/data/
+rasa/models/
+rasa/results/

@@ -91,3 +91,36 @@ stories:
     steps:
       - intent: analyze_journal
       - action: utter_journal_analysis
+
+  - story: crisis response
+    steps:
+      - intent: crisis
+      - action: utter_crisis
+
+  - story: mood unhappy to help
+    steps:
+      - intent: mood_unhappy
+      - action: utter_cheer_up
+      - intent: need_help
+      - action: utter_help
+
+  - story: sad to story
+    steps:
+      - intent: sad
+      - action: utter_sad
+      - intent: tell_story
+      - action: utter_tell_story
+
+  - story: anxious to story
+    steps:
+      - intent: anxious
+      - action: utter_anxious
+      - intent: tell_story
+      - action: utter_tell_story
+
+  - story: stressed to story
+    steps:
+      - intent: stressed
+      - action: utter_stressed
+      - intent: tell_story
+      - action: utter_tell_story

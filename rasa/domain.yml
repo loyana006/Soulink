@@ -16,6 +16,7 @@ intents:
   - ask_advice
   - bot_challenge
   - analyze_journal
+  - crisis
 
 entities:
   - emotion
@@ -63,6 +64,9 @@ responses:
     - text: "I'm here to help you in any way I can. I can listen, provide emotional support, and help you process your feelings. What do you need help with?"
     - text: "Of course! I'm here to support you. Whether you need to talk, vent, or just have someone listen, I'm here. What can I help you with?"
 
+  utter_crisis:
+    - text: "I'm really concerned about what you've shared. Your life matters, and there are people who want to help. Please reach out to a crisis helpline - they're available 24/7 and trained to support you. You don't have to face this alone."
+
   utter_default:
     - text: "I'm here to listen. Could you tell me more about what you're feeling or thinking?"
     - text: "I understand. Can you help me understand better by sharing more details?"
@@ -83,3 +87,5 @@ responses:
     - text: "Based on your journal entry, I can see you're expressing a range of emotions and thoughts. This is a positive step in self-reflection. Your writing shows emotional awareness and the courage to explore your feelings."
     - text: "After reading your entry, I notice themes of self-reflection and emotional processing. Journaling is a powerful tool for mental well-being, and I can see you're using it effectively to understand yourself better."
     - text: "Your journal entry reveals thoughtful introspection. I can sense the emotions you're experiencing, and I want you to know that your feelings are valid. Continue expressing yourself - it's an important part of your journey."
+    - text: "Thank you for sharing your journal entry. I notice you're processing your emotions through writing, which is a healthy coping mechanism. Your emotional state summary above reflects what I've observed - remember, all feelings are valid and worth exploring."
+    - text: "I've analyzed your entry and can see the emotional landscape you're navigating. Whether you're feeling positive, struggling, or somewhere in between, the act of journaling itself shows self-awareness and a willingness to understand yourself better."

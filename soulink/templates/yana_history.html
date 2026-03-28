@@ -1,0 +1,145 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+
+    <main class="dashboard-main-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="section-title text-start mb-2" style="color: var(--color-teal);">
+                    <i class="fas fa-comments me-2"></i>Yana Chat History
+                </h2>
+                <p class="lead text-muted mb-0">Review and manage your conversations with Yana.</p>
+            </div>
+        </div>
+
+        {% if sessions %}
+            {% for session in sessions %}
+                <div class="card mb-3"
+                     data-session-id="{{ session.id }}"
+                     data-edit-url="{% url 'chatbot:edit_session_title' session.id %}"
+                     data-delete-url="{% url 'chatbot:delete_session' session.id %}"
+                     data-activate-url="{% url 'chatbot:activate_session' session.id %}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <input
+                                type="text"
+                                class="form-control form-control-sm session-title-input"
+                                value="{{ session.title|default:'Untitled chat' }}"
+                                style="max-width: 260px;"
+                            >
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small">
+                                {{ session.messages.count }} messages
+                                {% if session.messages.all %}
+                                    · {{ session.created_at|date:"M d, Y H:i" }}
+                                {% endif %}
+                            </span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary continue-session-btn">
+                                    <i class="fas fa-comments me-1"></i> Continue
+                                </button>
+                                <button type="button" class="btn btn-outline-danger delete-session-btn">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        {% for msg in session.messages.all %}
+                            <div class="mb-2 d-flex {% if msg.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
+                                <div class="px-3 py-2 rounded-3 {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                                    <div class="small mb-1 text-muted">
+                                        {% if msg.role == 'user' %}You{% else %}Yana{% endif %}
+                                        · {{ msg.created_at|date:"M d, Y H:i" }}
+                                    </div>
+                                    <div style="white-space: pre-wrap;">{{ msg.text }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                You don't have any saved chat history with Yana yet. Start a conversation and your messages will appear here.
+            </div>
+        {% endif %}
+    </main>
+...</div>
+{% endblock main %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Basic CSRF helper from cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    document.querySelectorAll('.card[data-session-id]').forEach(function(card) {
+        const editUrl = card.dataset.editUrl;
+        const deleteUrl = card.dataset.deleteUrl;
+        const activateUrl = card.dataset.activateUrl;
+        const titleInput = card.querySelector('.session-title-input');
+        const continueBtn = card.querySelector('.continue-session-btn');
+        const deleteBtn = card.querySelector('.delete-session-btn');
+
+        // Save title on blur
+        titleInput.addEventListener('blur', async function() {
+            const newTitle = titleInput.value.trim();
+            try {
+                const res = await fetch(editUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({ title: newTitle }),
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    console.error('Failed to update title', data);
+                } else {
+                    titleInput.value = data.title;
+                }
+            } catch (e) {
+                console.error('Error updating title', e);
+            }
+        });
+
+        // Continue chat
+        continueBtn.addEventListener('click', function() {
+            window.location.href = activateUrl;
+        });
+
+        // Delete session
+        deleteBtn.addEventListener('click', async function() {
+            if (!confirm('Delete this chat session and all its messages?')) {
+                return;
+            }
+            try {
+                const res = await fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                });
+                const data = await res.json();
+                if (data.success) {
+                    card.remove();
+                } else {
+                    console.error('Failed to delete session', data);
+                }
+            } catch (e) {
+                console.error('Error deleting session', e);
+            }
+        });
+    });
+});
+</script>
