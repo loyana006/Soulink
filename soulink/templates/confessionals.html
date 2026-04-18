@@ -23,7 +23,7 @@
         <div class="row justify-content-center">
             <div class="col-xl-7 col-lg-8">
                 <!-- Compose (top of feed) -->
-                <div class="tweet-compose mb-3">
+                <div class="tweet-compose tweet-compose-compact mb-3">
                     <div class="tweet-row">
                         <div class="tweet-avatar tweet-avatar-me" aria-hidden="true" title="Your community avatar">{{ user_profile.avatar_emoji }}</div>
                         <div class="tweet-body">
@@ -45,6 +45,7 @@
                                         <label class="form-check-label small" for="{{ form.is_draft.id_for_label }}">Save as draft</label>
                                     </div>
                                 </div>
+                                <p class="small text-muted mt-2 mb-0">When draft is enabled, your text is auto-saved in this browser.</p>
                                 <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
                                     <div class="form-check mb-0">
                                         {{ form.is_anonymous }}
@@ -58,94 +59,24 @@
                 </div>
 
                 <div class="confession-feed border-feed">
-                {% if confessions %}
-                    {% for confession in confessions %}
-                    <article class="tweet-post confession-card" data-confession-id="{{ confession.id }}">
-                        <div class="tweet-row">
-                            <div class="tweet-avatar" aria-hidden="true">
-                                {% if confession.is_anonymous %}?{% elif confession.user.profile %}{{ confession.user.profile.avatar_emoji }}{% else %}{{ confession.user.username.0|upper }}{% endif %}
-                            </div>
-                            <div class="tweet-body">
-                                <div class="tweet-meta">
-                                    <span class="tweet-display-name">
-                                        {% if confession.is_anonymous %}Anonymous{% elif confession.user.profile %}{{ confession.user.profile.community_display_name }}{% else %}{{ confession.user.username }}{% endif %}
-                                    </span>
-                                    <span class="tweet-handle">
-                                        {% if confession.is_anonymous %}@anonymous{% else %}@{{ confession.user.username }}{% endif %}
-                                    </span>
-                                    <span class="tweet-dot">·</span>
-                                    <time class="tweet-time" datetime="{{ confession.created_at|date:'c' }}">{{ confession.created_at|timesince }} ago</time>
-                                    <span class="tweet-dot">·</span>
-                                    <span class="tweet-topic">#{{ confession.topic }}</span>
-                                </div>
-                                {% if confession.title %}
-                                <h3 class="tweet-title-text">{{ confession.title }}</h3>
-                                {% endif %}
-                                <p class="tweet-text">{{ confession.content|linebreaksbr }}</p>
-
-                                <div class="tweet-actions" role="toolbar">
-                                    <button type="button" class="tweet-action-btn comment-toggle-btn {% if confession.comment_count %}has-count{% endif %}" data-confession-id="{{ confession.id }}" title="Replies">
-                                        <span class="tweet-action-icon"><i class="far fa-comment"></i></span>
-                                        <span class="tweet-action-count comment-count">{{ confession.comment_count }}</span>
-                                    </button>
-                                    <button type="button" class="tweet-action-btn like-btn {% if confession.id in liked_confession_ids %}is-liked liked{% endif %}" data-confession-id="{{ confession.id }}" title="Support">
-                                        <span class="tweet-action-icon"><i class="{% if confession.id in liked_confession_ids %}fas{% else %}far{% endif %} fa-heart like-icon"></i></span>
-                                        <span class="tweet-action-count like-count">{{ confession.like_count }}</span>
-                                    </button>
-                                    {% if confession.user_id == user.id %}
-                                    <button type="button" class="tweet-action-btn tweet-action-delete delete-confession-btn" data-confession-id="{{ confession.id }}" title="Delete post">
-                                        <span class="tweet-action-icon"><i class="far fa-trash-alt"></i></span>
-                                    </button>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Thread: replies + composer -->
-                                <div class="tweet-thread" id="thread-{{ confession.id }}" hidden>
-                                    <div class="tweet-thread-line"></div>
-                                    <div class="comments-list tweet-comments" id="comments-{{ confession.id }}">
-                                        {% for comment in confession.comments.all %}
-                                        <div class="tweet-comment" data-comment-id="{{ comment.id }}">
-                                            <div class="tweet-comment-avatar" aria-hidden="true">
-                                                {% if comment.is_anonymous %}?{% else %}{{ comment.user.username.0|upper }}{% endif %}
-                                            </div>
-                                            <div class="tweet-comment-body">
-                                                <div class="tweet-meta small">
-                                                    <span class="tweet-display-name">
-                                                        {% if comment.is_anonymous %}Anonymous{% else %}{{ comment.user.username }}{% endif %}
-                                                    </span>
-                                                    <span class="tweet-handle">
-                                                        {% if comment.is_anonymous %}@anonymous{% else %}@{{ comment.user.username }}{% endif %}
-                                                    </span>
-                                                    <span class="tweet-dot">·</span>
-                                                    <time>{{ comment.created_at|date:"M j" }}</time>
-                                                </div>
-                                                <p class="tweet-comment-text mb-0">{{ comment.content|linebreaksbr }}</p>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <p class="tweet-no-replies small text-muted mb-2">No replies yet. Be the first to respond.</p>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="tweet-reply-box mt-2">
-                                        <input type="text" class="form-control form-control-sm comment-input rounded-pill" placeholder="Post your reply" maxlength="1000" data-confession-id="{{ confession.id }}" autocomplete="off">
-                                        <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
-                                            <div class="form-check form-check-inline mb-0">
-                                                <input class="form-check-input comment-anonymous" type="checkbox" id="anon-{{ confession.id }}" checked data-confession-id="{{ confession.id }}">
-                                                <label class="form-check-label small" for="anon-{{ confession.id }}">Anonymous</label>
-                                            </div>
-                                            <button type="button" class="btn btn-primary-custom btn-sm rounded-pill comment-submit-btn" data-confession-id="{{ confession.id }}">Reply</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div id="confession-feed-items">
+                    {% if confessions %}
+                        {% for confession in confessions %}
+                        {% include "confessionals/_confession_card.html" %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="tweet-empty p-4 text-center text-muted" id="confession-feed-empty">
+                            <p class="mb-0">No posts yet. Say something above to start the feed.</p>
                         </div>
-                    </article>
-                    {% endfor %}
-                {% else %}
-                    <div class="tweet-empty p-4 text-center text-muted">
-                        <p class="mb-0">No posts yet. Say something above to start the feed.</p>
+                    {% endif %}
                     </div>
-                {% endif %}
+                    {% if feed_has_more %}
+                    <div class="text-center py-3 border-top border-feed-load-more" id="confession-feed-load-more-wrap">
+                        <button type="button" id="confession-load-more" class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+                            data-next-before="{{ feed_next_before_id }}"
+                            data-feed-url="{% url 'confession_feed_more' %}">Load more</button>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -172,6 +103,9 @@
 }
 .tweet-compose {
     background: var(--color-light-mint);
+}
+.tweet-compose-compact {
+    padding: 0.65rem 0.8rem;
 }
 .tweet-post:last-child {
     border-bottom: none;
@@ -322,13 +256,80 @@
     border-radius: 8px;
 }
 .compose-form textarea {
-    min-height: 80px;
+    min-height: 58px;
+    max-height: 130px;
+    resize: vertical;
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('.compose-form [name=csrfmiddlewaretoken]')?.value || '';
+    const feedRoot = document.querySelector('.confession-feed');
+    const composeForm = document.querySelector('.compose-form');
+
+    if (composeForm) {
+        const storageKey = 'soullink:confession:draft:v1';
+        const titleInput = composeForm.querySelector('#id_title');
+        const contentInput = composeForm.querySelector('#id_content');
+        const topicInput = composeForm.querySelector('#id_topic');
+        const anonymousInput = composeForm.querySelector('#id_is_anonymous');
+        const draftInput = composeForm.querySelector('#id_is_draft');
+
+        function saveDraftToBrowser() {
+            if (!draftInput || !draftInput.checked) return;
+            const payload = {
+                title: titleInput ? titleInput.value : '',
+                content: contentInput ? contentInput.value : '',
+                topic: topicInput ? topicInput.value : '',
+                is_anonymous: anonymousInput ? anonymousInput.checked : true,
+            };
+            localStorage.setItem(storageKey, JSON.stringify(payload));
+        }
+
+        function loadDraftFromBrowser() {
+            const raw = localStorage.getItem(storageKey);
+            if (!raw) return;
+            try {
+                const saved = JSON.parse(raw);
+                if (draftInput) draftInput.checked = true;
+                if (titleInput && typeof saved.title === 'string') titleInput.value = saved.title;
+                if (contentInput && typeof saved.content === 'string') contentInput.value = saved.content;
+                if (topicInput && typeof saved.topic === 'string') topicInput.value = saved.topic;
+                if (anonymousInput && typeof saved.is_anonymous === 'boolean') {
+                    anonymousInput.checked = saved.is_anonymous;
+                }
+            } catch (err) {
+                localStorage.removeItem(storageKey);
+            }
+        }
+
+        function clearDraftInBrowser() {
+            localStorage.removeItem(storageKey);
+        }
+
+        loadDraftFromBrowser();
+
+        [titleInput, contentInput, topicInput, anonymousInput].forEach(function(el) {
+            if (!el) return;
+            el.addEventListener('input', saveDraftToBrowser);
+            el.addEventListener('change', saveDraftToBrowser);
+        });
+
+        if (draftInput) {
+            draftInput.addEventListener('change', function() {
+                if (draftInput.checked) {
+                    saveDraftToBrowser();
+                } else {
+                    clearDraftInBrowser();
+                }
+            });
+        }
+
+        composeForm.addEventListener('submit', function() {
+            clearDraftInBrowser();
+        });
+    }
 
     function appendComment(listEl, comment) {
         const empty = listEl.querySelector('.tweet-no-replies');
@@ -375,88 +376,124 @@ document.addEventListener('DOMContentLoaded', function() {
         listEl.appendChild(row);
     }
 
-    document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.confessionId;
-            const thread = document.getElementById('thread-' + id);
-            if (!thread) return;
-            const open = thread.hidden;
-            thread.hidden = !open;
-            if (open) {
-                const input = thread.querySelector('.comment-input');
-                if (input) input.focus();
+    if (feedRoot) {
+        feedRoot.addEventListener('click', function(e) {
+            const t = e.target;
+            const commentBtn = t.closest && t.closest('.comment-toggle-btn');
+            if (commentBtn) {
+                const id = commentBtn.dataset.confessionId;
+                const thread = document.getElementById('thread-' + id);
+                if (!thread) return;
+                const open = thread.hidden;
+                thread.hidden = !open;
+                if (open) {
+                    const input = thread.querySelector('.comment-input');
+                    if (input) input.focus();
+                }
+                return;
             }
-        });
-    });
 
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const id = this.dataset.confessionId;
-            const card = this.closest('.confession-card');
-            const countEl = card.querySelector('.like-count');
-            const icon = this.querySelector('.like-icon');
-            try {
-                const res = await fetch('/confessionals/' + id + '/like/', {
+            const likeBtn = t.closest && t.closest('.like-btn');
+            if (likeBtn) {
+                e.preventDefault();
+                const id = likeBtn.dataset.confessionId;
+                const card = likeBtn.closest('.confession-card');
+                const countEl = card.querySelector('.like-count');
+                const icon = likeBtn.querySelector('.like-icon');
+                fetch('/confessionals/' + id + '/like/', {
                     method: 'POST',
                     headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
                     body: JSON.stringify({})
-                });
-                const data = await res.json();
-                if (data.success) {
-                    countEl.textContent = data.like_count;
-                    this.classList.toggle('is-liked', data.liked);
-                    this.classList.toggle('liked', data.liked);
-                    if (icon) {
-                        icon.classList.toggle('far', !data.liked);
-                        icon.classList.toggle('fas', data.liked);
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    if (data.success) {
+                        countEl.textContent = data.like_count;
+                        likeBtn.classList.toggle('is-liked', data.liked);
+                        likeBtn.classList.toggle('liked', data.liked);
+                        if (icon) {
+                            icon.classList.toggle('far', !data.liked);
+                            icon.classList.toggle('fas', data.liked);
+                        }
                     }
-                }
-            } catch (e) { console.error(e); }
-        });
-    });
+                }).catch(function(err) { console.error(err); });
+                return;
+            }
 
-    document.querySelectorAll('.delete-confession-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            if (!confirm('Delete this post? This cannot be undone.')) return;
-            const id = this.dataset.confessionId;
-            try {
-                const res = await fetch('/confessionals/' + id + '/delete/', {
+            const delBtn = t.closest && t.closest('.delete-confession-btn');
+            if (delBtn) {
+                e.preventDefault();
+                if (!confirm('Delete this post? This cannot be undone.')) return;
+                const id = delBtn.dataset.confessionId;
+                fetch('/confessionals/' + id + '/delete/', {
                     method: 'POST',
                     headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
                     body: JSON.stringify({})
-                });
-                const data = await res.json();
-                if (data.success) {
-                    const card = this.closest('.confession-card');
-                    if (card) card.remove();
-                }
-            } catch (e) { console.error(e); }
-        });
-    });
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    if (data.success) {
+                        const card = delBtn.closest('.confession-card');
+                        if (card) card.remove();
+                    }
+                }).catch(function(err) { console.error(err); });
+                return;
+            }
 
-    document.querySelectorAll('.comment-submit-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const id = this.dataset.confessionId;
-            const card = this.closest('.confession-card');
-            const input = card.querySelector('.comment-input');
-            const anonCheck = card.querySelector('.comment-anonymous');
-            const content = input.value.trim();
-            if (!content) return;
-            try {
-                const res = await fetch('/confessionals/' + id + '/comment/', {
+            const submitBtn = t.closest && t.closest('.comment-submit-btn');
+            if (submitBtn) {
+                e.preventDefault();
+                const id = submitBtn.dataset.confessionId;
+                const card = submitBtn.closest('.confession-card');
+                const input = card.querySelector('.comment-input');
+                const anonCheck = card.querySelector('.comment-anonymous');
+                const content = input.value.trim();
+                if (!content) return;
+                fetch('/confessionals/' + id + '/comment/', {
                     method: 'POST',
                     headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: content, is_anonymous: anonCheck.checked })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    input.value = '';
-                    card.querySelector('.comment-count').textContent = data.comment_count;
-                    appendComment(document.getElementById('comments-' + id), data.comment);
-                }
-            } catch (e) { console.error(e); }
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    if (data.success) {
+                        input.value = '';
+                        card.querySelector('.comment-count').textContent = data.comment_count;
+                        appendComment(document.getElementById('comments-' + id), data.comment);
+                    }
+                }).catch(function(err) { console.error(err); });
+            }
         });
-    });
+    }
+
+    const loadMoreBtn = document.getElementById('confession-load-more');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            const btn = this;
+            const before = btn.dataset.nextBefore;
+            const baseUrl = btn.dataset.feedUrl;
+            if (!before || !baseUrl) return;
+            btn.disabled = true;
+            const label = btn.textContent;
+            btn.textContent = 'Loading…';
+            fetch(baseUrl + '?before=' + encodeURIComponent(before))
+                .then(function(res) { return res.json().then(function(data) { return { res: res, data: data }; }); })
+                .then(function(_ref) {
+                    const res = _ref.res;
+                    const data = _ref.data;
+                    if (!res.ok) throw new Error(data.error || 'Load failed');
+                    const items = document.getElementById('confession-feed-items');
+                    if (data.html) items.insertAdjacentHTML('beforeend', data.html);
+                    if (data.has_more && data.next_before_id) {
+                        btn.dataset.nextBefore = String(data.next_before_id);
+                        btn.disabled = false;
+                        btn.textContent = label;
+                    } else {
+                        const wrap = document.getElementById('confession-feed-load-more-wrap');
+                        if (wrap) wrap.remove();
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    btn.disabled = false;
+                    btn.textContent = label;
+                });
+        });
+    }
 });
 </script>
 {% endblock main %}

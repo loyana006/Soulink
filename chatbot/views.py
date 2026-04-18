@@ -264,7 +264,7 @@ def activate_session(request, session_id):
     if not session.is_active:
         session.is_active = True
         session.save(update_fields=["is_active", "updated_at"])
-    return redirect("chatbot")
+    return redirect("yana")
 
 
 @login_required

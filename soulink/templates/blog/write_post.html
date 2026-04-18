@@ -1,0 +1,48 @@
+{% extends 'components/base.html' %}
+
+{% block main %}
+<div class="dashboard-container">
+    {% include 'components/sidebar.html' %}
+    <main class="dashboard-main-content">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h2 class="section-title mb-0" style="color: var(--color-teal);">Write blog post</h2>
+            <a href="{% url 'blog' %}" class="btn btn-outline-secondary btn-sm">Back to blog</a>
+        </div>
+
+        <div class="card-custom p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.excerpt.id_for_label }}">Excerpt</label>
+                    {{ form.excerpt }}
+                    {{ form.excerpt.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.body.id_for_label }}">Body</label>
+                    {{ form.body }}
+                    {{ form.body.errors }}
+                </div>
+                <div class="row g-3 align-items-center mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+                        {{ form.category }}
+                        {{ form.category.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check mt-md-4">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">Publish immediately</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary-custom">Save post</button>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock main %}

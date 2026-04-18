@@ -30,7 +30,8 @@ urlpatterns = [
     path("", views.index, name="home"),
     path("about/", views.about, name="about"),
     path("support/", views.support, name="support"),
-    path("chatbot/", views.chatbot, name="chatbot"),
+    path("yana/", views.chatbot, name="yana"),
     path("blog/", include("blog.urls")),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("dashboard/quick-journal/", views.quick_journal, name="quick_journal"),
 ]

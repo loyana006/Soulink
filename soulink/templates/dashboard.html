@@ -5,8 +5,18 @@
     {% include 'components/sidebar.html' %}
 
     <main class="dashboard-main-content">
+        {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         
-        <h2 class="section-title text-start mb-2" style="color: var(--soulink-text-color);">Welcome Back, {{ user.username }}!</h2>
+        <h2 class="section-title text-start mb-2" style="color: var(--soulink-text-color);">Welcome Back, {{ user.username|default:"Friend" }}!</h2>
         <p class="lead text-muted mb-4">Let's see where you are in your journey today.</p>
 
         <div class="daily-focus-card">
@@ -20,27 +30,91 @@
             <div class="col-md-4">
                 <div class="summary-card">
                     <p class="small text-muted mb-0">Journals Last 7 Days</p>
-                    <h3 class="mt-1" style="color: var(--soulink-text-color);">5</h3>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);">{{ snapshot.journals_last_7 }}</h3>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="summary-card">
                     <p class="small text-muted mb-0">Most Frequent Mood</p>
-                    <h3 class="mt-1" style="color: var(--soulink-text-color);"> Calm</h3>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);">{{ snapshot.most_frequent_mood }}</h3>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="summary-card">
                     <p class="small text-muted mb-0">Days Streak</p>
-                    <h3 class="mt-1" style="color: var(--soulink-text-color);">12</h3>
+                    <h3 class="mt-1" style="color: var(--soulink-text-color);">{{ snapshot.days_streak }}</h3>
                 </div>
             </div>
         </div>
 
         <h3 class="mb-3" style="color: var(--soulink-text-color);">Your Weekly Emotional Landscape</h3>
-        <div class="chart-placeholder mb-5">
-            Placeholder for Data Visualization
-        </div>
+            <div class="row g-3 align-items-stretch">
+                <div class="col-lg-7">
+                    <div class="card-custom p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0" style="color: var(--soulink-text-color);">Mood trend (last 7 days)</h6>
+                            <small class="text-muted">Avg mood score \(1–5\)</small>
+                        </div>
+
+                        <svg viewBox="0 0 320 140" class="mood-svg" role="img" aria-label="Weekly mood trend">
+                            <defs>
+                                <linearGradient id="moodLine" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="var(--color-teal)"/>
+                                    <stop offset="100%" stop-color="var(--color-pink)"/>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- grid -->
+                            <g class="mood-grid">
+                                <line x1="16" y1="112" x2="304" y2="112"></line>
+                                <line x1="16" y1="88" x2="304" y2="88"></line>
+                                <line x1="16" y1="64" x2="304" y2="64"></line>
+                                <line x1="16" y1="40" x2="304" y2="40"></line>
+                                <line x1="16" y1="16" x2="304" y2="16"></line>
+                            </g>
+
+                            <polyline points="{{ svg_polyline }}" class="mood-line"></polyline>
+
+                            {% for p in svg_points %}
+                            <circle cx="{{ p.x }}" cy="{{ p.y }}" r="{% if p.has_data %}4.2{% else %}3{% endif %}"
+                                    class="mood-dot {% if not p.has_data %}is-empty{% endif %}">
+                                <title>{{ p.label }}: {% if p.has_data %}{{ p.score }}/5 ({{ p.entries }} entries){% else %}No entries{% endif %}</title>
+                            </circle>
+                            {% endfor %}
+                        </svg>
+
+                        <div class="d-flex justify-content-between mt-2">
+                            {% for p in svg_points %}
+                            <small class="text-muted">{{ p.label }}</small>
+                            {% endfor %}
+                        </div>
+                        <p class="small text-muted mt-2 mb-0">Tip: Write even 2–3 lines to keep the trend meaningful.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card-custom p-3 h-100">
+                        <h6 class="mb-2" style="color: var(--soulink-text-color);">Mood mix (this week)</h6>
+                        <div class="mood-dist">
+                            {% for row in week_mood_dist %}
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="mood-swatch" style="background: {{ row.color }};"></div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="fw-semibold">{{ row.label }}</span>
+                                        <span class="text-muted">{{ row.count }} ({{ row.pct }}%)</span>
+                                    </div>
+                                    <div class="mood-track">
+                                        <div class="mood-fill" style="width: {{ row.pct }}%; background: {{ row.color }};"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted d-block mt-2">Based on your journal mood tags from the last 7 days.</small>
+                    </div>
+                </div>
+            </div>
 
         <h3 class="mb-3 mt-5" style="color: var(--soulink-primary-warm);">Jump In: What Do You Choose?</h3>
         <div class="row g-4 mb-5">
@@ -52,16 +126,17 @@
             </div>
             
             <div class="col-md-6">
-                <a href="{% url 'chatbot' %}" class="btn soulink-login-btn w-100 soulink-lg-btn">
+                <a href="{% url 'yana' %}" class="btn soulink-login-btn w-100 soulink-lg-btn">
                     <i class="fas fa-robot me-2"></i> Talk to Yana Now
                 </a>
             </div>
             
             <div class="col-12">
                 <div class="quick-journal-box">
-                    <form action="/api/quick-journal" method="POST">
+                    <form action="{% url 'quick_journal' %}" method="POST">
+                        {% csrf_token %}
                         <h5 style="color: var(--soulink-text-color);">Quick Thought Dump</h5>
-                        <textarea class="form-control mb-3" rows="3" placeholder="If you only have 30 seconds, write down a single thought or feeling..."></textarea>
+                        <textarea name="quick_entry" class="form-control mb-3" rows="3" placeholder="If you only have 30 seconds, write down a single thought or feeling..." required></textarea>
                         <button type="submit" class="btn btn-primary-custom btn-sm">Save to Journal</button>
                         <a href="{% url 'journal' %}" class="btn btn-outline-custom btn-sm ms-2">Go to Full Journal</a>
                     </form>
@@ -89,4 +164,14 @@
 
     </main>
 </div>
+<style>
+    .mood-svg { width: 100%; height: auto; }
+    .mood-grid line { stroke: rgba(0,128,128,.14); stroke-width: 1; }
+    .mood-line { fill: none; stroke: url(#moodLine); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+    .mood-dot { fill: #fff; stroke: rgba(0,128,128,.55); stroke-width: 2; }
+    .mood-dot.is-empty { fill: #f1f3f5; stroke: rgba(108,117,125,.45); stroke-dasharray: 2 2; }
+    .mood-swatch { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+    .mood-track { height: 8px; background: #eef3f3; border-radius: 999px; overflow: hidden; }
+    .mood-fill { height: 100%; border-radius: 999px; }
+</style>
 {% endblock main %}

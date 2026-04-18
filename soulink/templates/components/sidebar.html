@@ -7,7 +7,7 @@
             <li class="mb-2"><a href="{% url 'journal' %}" class="sidebar-nav-link {% if 'journal' in request.path %} active {% endif %}">
                 <i class="fas fa-book-open me-2"></i> Private Journal
             </a></li>
-            <li class="mb-2"><a href="{% url 'chatbot' %}" class="sidebar-nav-link {% if 'chatbot' in request.path %} active {% endif %}">
+            <li class="mb-2"><a href="{% url 'yana' %}" class="sidebar-nav-link {% if '/yana/' in request.path %} active {% endif %}">
                 <i class="fas fa-robot me-2"></i> Chat with Yana
             </a></li>
             <li class="mb-2"><a href="{% url 'confessionals' %}" class="sidebar-nav-link {% if 'confessionals' in request.path %} active {% endif %}">

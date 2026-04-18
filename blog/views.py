@@ -1,11 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count, Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from .forms import BlogPostForm
 from .models import BlogBookmark, BlogPost
 
 
@@ -66,6 +68,32 @@ def post_list(request):
             "query_string": query_string,
         },
     )
+
+
+@login_required
+def write_post(request):
+    if request.method == "POST":
+        form = BlogPostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, "Blog post saved.")
+            return redirect("blog_post_detail", slug=post.slug)
+    else:
+        form = BlogPostForm(initial={"is_published": True})
+
+    return render(request, "blog/write_post.html", {"form": form})
+
+
+@login_required
+def saved_posts(request):
+    saved = (
+        BlogBookmark.objects.filter(user=request.user, post__is_published=True)
+        .select_related("post", "post__author")
+        .order_by("-created_at")
+    )
+    return render(request, "blog/saved_posts.html", {"saved_posts": saved})
 
 
 def post_detail(request, slug):

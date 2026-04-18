@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("", views.confessions, name="confessionals"),
+    path("feed/more/", views.confession_feed_more, name="confession_feed_more"),
     path("<int:confession_id>/delete/", views.delete_confession, name="delete_confession"),
     path("<int:confession_id>/publish/", views.publish_confession, name="publish_confession"),
     path(

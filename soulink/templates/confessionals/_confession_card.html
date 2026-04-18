@@ -1,0 +1,80 @@
+{% comment %}Single confession card for feed (initial page + load-more).{% endcomment %}
+<article class="tweet-post confession-card" data-confession-id="{{ confession.id }}">
+    <div class="tweet-row">
+        <div class="tweet-avatar" aria-hidden="true">
+            {% if confession.is_anonymous %}?{% elif confession.user.profile %}{{ confession.user.profile.avatar_emoji }}{% else %}{{ confession.user.username.0|upper }}{% endif %}
+        </div>
+        <div class="tweet-body">
+            <div class="tweet-meta">
+                <span class="tweet-display-name">
+                    {% if confession.is_anonymous %}Anonymous{% elif confession.user.profile %}{{ confession.user.profile.community_display_name }}{% else %}{{ confession.user.username }}{% endif %}
+                </span>
+                <span class="tweet-handle">
+                    {% if confession.is_anonymous %}@anonymous{% else %}@{{ confession.user.username }}{% endif %}
+                </span>
+                <span class="tweet-dot">·</span>
+                <time class="tweet-time" datetime="{{ confession.created_at|date:'c' }}">{{ confession.created_at|timesince }} ago</time>
+                <span class="tweet-dot">·</span>
+                <span class="tweet-topic">#{{ confession.topic }}</span>
+            </div>
+            {% if confession.title %}
+            <h3 class="tweet-title-text">{{ confession.title }}</h3>
+            {% endif %}
+            <p class="tweet-text">{{ confession.content|linebreaksbr }}</p>
+
+            <div class="tweet-actions" role="toolbar">
+                <button type="button" class="tweet-action-btn comment-toggle-btn {% if confession.comment_count %}has-count{% endif %}" data-confession-id="{{ confession.id }}" title="Replies">
+                    <span class="tweet-action-icon"><i class="far fa-comment"></i></span>
+                    <span class="tweet-action-count comment-count">{{ confession.comment_count }}</span>
+                </button>
+                <button type="button" class="tweet-action-btn like-btn {% if confession.id in liked_confession_ids %}is-liked liked{% endif %}" data-confession-id="{{ confession.id }}" title="Support">
+                    <span class="tweet-action-icon"><i class="{% if confession.id in liked_confession_ids %}fas{% else %}far{% endif %} fa-heart like-icon"></i></span>
+                    <span class="tweet-action-count like-count">{{ confession.like_count }}</span>
+                </button>
+                {% if confession.user_id == user.id %}
+                <button type="button" class="tweet-action-btn tweet-action-delete delete-confession-btn" data-confession-id="{{ confession.id }}" title="Delete post">
+                    <span class="tweet-action-icon"><i class="far fa-trash-alt"></i></span>
+                </button>
+                {% endif %}
+            </div>
+
+            <div class="tweet-thread" id="thread-{{ confession.id }}" hidden>
+                <div class="tweet-thread-line"></div>
+                <div class="comments-list tweet-comments" id="comments-{{ confession.id }}">
+                    {% for comment in confession.comments.all %}
+                    <div class="tweet-comment" data-comment-id="{{ comment.id }}">
+                        <div class="tweet-comment-avatar" aria-hidden="true">
+                            {% if comment.is_anonymous %}?{% else %}{{ comment.user.username.0|upper }}{% endif %}
+                        </div>
+                        <div class="tweet-comment-body">
+                            <div class="tweet-meta small">
+                                <span class="tweet-display-name">
+                                    {% if comment.is_anonymous %}Anonymous{% else %}{{ comment.user.username }}{% endif %}
+                                </span>
+                                <span class="tweet-handle">
+                                    {% if comment.is_anonymous %}@anonymous{% else %}@{{ comment.user.username }}{% endif %}
+                                </span>
+                                <span class="tweet-dot">·</span>
+                                <time>{{ comment.created_at|date:"M j" }}</time>
+                            </div>
+                            <p class="tweet-comment-text mb-0">{{ comment.content|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="tweet-no-replies small text-muted mb-2">No replies yet. Be the first to respond.</p>
+                    {% endfor %}
+                </div>
+                <div class="tweet-reply-box mt-2">
+                    <input type="text" class="form-control form-control-sm comment-input rounded-pill" placeholder="Post your reply" maxlength="1000" data-confession-id="{{ confession.id }}" autocomplete="off">
+                    <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
+                        <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input comment-anonymous" type="checkbox" id="anon-{{ confession.id }}" checked data-confession-id="{{ confession.id }}">
+                            <label class="form-check-label small" for="anon-{{ confession.id }}">Anonymous</label>
+                        </div>
+                        <button type="button" class="btn btn-primary-custom btn-sm rounded-pill comment-submit-btn" data-confession-id="{{ confession.id }}">Reply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
