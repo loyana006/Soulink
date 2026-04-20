@@ -1,5 +1,5 @@
 {% comment %}Single confession card for feed (initial page + load-more).{% endcomment %}
-<article class="tweet-post confession-card" data-confession-id="{{ confession.id }}">
+<article id="confession-{{ confession.id }}" class="tweet-post confession-card" data-confession-id="{{ confession.id }}">
     <div class="tweet-row">
         <div class="tweet-avatar" aria-hidden="true">
             {% if confession.is_anonymous %}?{% elif confession.user.profile %}{{ confession.user.profile.avatar_emoji }}{% else %}{{ confession.user.username.0|upper }}{% endif %}

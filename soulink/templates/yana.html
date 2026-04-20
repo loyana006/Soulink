@@ -142,9 +142,13 @@
 
         <div class="chat-window">
             <div class="chat-messages" id="chat-messages">
-                <div class="yana-message">
-                    Hello! I'm Yana, your emotional support companion. I'm here to listen to you without judgment. How are you feeling today?
-                </div>
+                {% if initial_messages %}
+                    {% for msg in initial_messages %}
+                        <div class="{% if msg.role == 'user' %}user-message{% else %}yana-message{% endif %}">{{ msg.text }}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="yana-message">Hello! I'm Yana, your emotional support companion. I'm here to listen to you without judgment. How are you feeling today?</div>
+                {% endif %}
             </div>
             
             <div class="typing-indicator" id="typing-indicator">

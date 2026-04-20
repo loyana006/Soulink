@@ -37,35 +37,7 @@
                 <div class="row g-4" id="past-entries-container">
                     {% if past_entries %}
                         {% for entry in past_entries %}
-                        <div class="col-12 col-md-6 entry-card" data-entry-id="{{ entry.id }}">
-                            <div class="card-custom p-4 h-100 entry-card-inner">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <p class="text-sm text-muted mb-1 d-flex align-items-center">
-                                            <i class="fas fa-calendar-alt me-1"></i>
-                                            <time datetime="{{ entry.entry_date|date:'c' }}">{{ entry.entry_date }}</time>
-                                        </p>
-                                        <h4 class="fw-semibold mb-2 text-break" style="color: var(--color-pink);">
-                                            {{ entry.title }}
-                                        </h4>
-                                    </div>
-                                    <span class="badge bg-light text-dark small">
-                                        {{ entry.word_count|default:"0" }} words
-                                    </span>
-                                </div>
-                                <div class="entry-content text-muted mb-3" style="max-height: 200px; overflow-y: auto;">
-                                    {{ entry.entry|linebreaksbr|truncatechars_html:350 }}
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center pt-3 border-top gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary quick-view-btn" data-entry-id="{{ entry.id }}" aria-label="Quick View Entry">
-                                        <i class="fas fa-eye me-1"></i> Quick View
-                                    </button>
-                                    <a href="{% url 'view_journal_entry' entry.id %}" class="btn btn-sm btn-primary-custom" aria-label="View & Analyze Entry">
-                                        <i class="fas fa-brain me-1"></i> View &amp; Analyze
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                            {% include "journal/_entry_card.html" %}
                         {% endfor %}
                     {% else %}
                     <div class="col-12">
@@ -80,6 +52,21 @@
                     </div>
                     {% endif %}
                 </div>
+
+                {% if entries_has_more %}
+                <div class="text-center pt-4" id="journal-load-more-wrap">
+                    <button
+                        type="button"
+                        id="journal-load-more"
+                        class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+                        data-next-before-date="{{ entries_next_before_date }}"
+                        data-next-before-id="{{ entries_next_before_id }}"
+                        data-feed-url="{% url 'journal_entries_more' %}"
+                    >
+                        Load more
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </section>
     </main>
@@ -436,14 +423,67 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    // Quick view btn
-    document.querySelectorAll('.quick-view-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+    // Quick view btn (event delegation so it works for "Load more" appended cards too)
+    const pastEntriesContainer = document.getElementById('past-entries-container');
+    if (pastEntriesContainer) {
+        pastEntriesContainer.addEventListener('click', function(e) {
+            const t = e.target;
+            const btn = t && t.closest ? t.closest('.quick-view-btn') : null;
+            if (!btn) return;
+            e.preventDefault();
             e.stopPropagation();
-            const entryId = this.getAttribute('data-entry-id');
+            const entryId = btn.getAttribute('data-entry-id');
             if (entryId) fetch_journal_entry(Number(entryId));
         });
-    });
+    }
+
+    // Load more pagination (cursor based)
+    const loadMoreBtn = document.getElementById('journal-load-more');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            const btn = this;
+            const beforeDate = btn.dataset.nextBeforeDate;
+            const beforeId = btn.dataset.nextBeforeId;
+            const baseUrl = btn.dataset.feedUrl;
+            if (!beforeDate || !beforeId || !baseUrl) return;
+
+            btn.disabled = true;
+            const label = btn.textContent;
+            btn.textContent = 'Loading…';
+
+            const qs = new URLSearchParams({
+                before_date: beforeDate,
+                before_id: beforeId,
+            });
+
+            fetch(baseUrl + '?' + qs.toString())
+                .then(function(res) {
+                    return res.json().then(function(data) { return { res: res, data: data }; });
+                })
+                .then(function(_ref) {
+                    const res = _ref.res;
+                    const data = _ref.data;
+                    if (!res.ok) throw new Error(data.error || 'Load failed');
+
+                    if (data.html) pastEntriesContainer.insertAdjacentHTML('beforeend', data.html);
+
+                    if (data.has_more && data.next_before_date && data.next_before_id) {
+                        btn.dataset.nextBeforeDate = String(data.next_before_date);
+                        btn.dataset.nextBeforeId = String(data.next_before_id);
+                        btn.disabled = false;
+                        btn.textContent = label;
+                    } else {
+                        const wrap = document.getElementById('journal-load-more-wrap');
+                        if (wrap) wrap.remove();
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    btn.disabled = false;
+                    btn.textContent = label;
+                });
+        });
+    }
     // Reset form on modal close
     const addModal = document.getElementById('addEntryModal');
     if (addModal) {

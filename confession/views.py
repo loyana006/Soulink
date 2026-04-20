@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch
 from django.http import HttpRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
@@ -75,6 +75,25 @@ def confessions(request: HttpRequest):
     )
     feed_next_before_id = confessions[-1].id if confessions and feed_has_more else None
 
+    topic_labels = dict(ConfessionModal.TOPIC_CHOICE)
+    trending_topics = list(
+        ConfessionModal.objects.filter(is_draft=False)
+        .values("topic")
+        .annotate(posts=Count("id"))
+        .order_by("-posts")[:6]
+    )
+    for row in trending_topics:
+        row["label"] = topic_labels.get(row["topic"], row["topic"])
+
+    trending_posts = list(
+        ConfessionModal.objects.filter(is_draft=False)
+        .annotate(like_count_db=Count("likes"))
+        .order_by("-like_count_db", "-id")
+        .values("id", "title", "topic", "like_count_db")[:5]
+    )
+    for row in trending_posts:
+        row["topic_label"] = topic_labels.get(row["topic"], row["topic"])
+
     context = {
         "form": form,
         "confessions": confessions,
@@ -82,6 +101,8 @@ def confessions(request: HttpRequest):
         "user_profile": profile,
         "feed_has_more": feed_has_more,
         "feed_next_before_id": feed_next_before_id,
+        "trending_topics": trending_topics,
+        "trending_posts": trending_posts,
     }
     return render(request, "confessionals.html", context)
 

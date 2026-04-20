@@ -20,7 +20,32 @@ def support(request):
 
 
 def chatbot(request):
-    return render(request, "yana.html")
+    active_session = None
+    initial_messages = []
+
+    if request.user.is_authenticated:
+        try:
+            from chatbot.models import ChatSession
+
+            session_pk = request.session.get("yana_session_pk")
+            if session_pk:
+                active_session = (
+                    ChatSession.objects.filter(id=session_pk, user=request.user)
+                    .prefetch_related("messages")
+                    .first()
+                )
+            if active_session:
+                initial_messages = list(active_session.messages.all())
+        except Exception:
+            # If the chatbot app isn't available or db isn't ready, degrade gracefully.
+            active_session = None
+            initial_messages = []
+
+    return render(
+        request,
+        "yana.html",
+        {"active_session": active_session, "initial_messages": initial_messages},
+    )
 
 
 def dashboard(request):

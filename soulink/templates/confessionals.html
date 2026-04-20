@@ -54,9 +54,27 @@
                                     <button type="submit" class="btn btn-primary-custom btn-sm px-4 rounded-pill">Post</button>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>
+                <!-- Community care (non-sticky; moved into composer) -->
+                <aside class="compose-care-card mt-3 mb-4" role="note" aria-label="Community care">
+                    <div class="care-card">
+                        <div class="care-card-header">
+                            <div class="care-card-icon" aria-hidden="true"><i class="fas fa-leaf"></i></div>
+                            <div class="care-card-title-wrap">
+                                <h3 class="care-card-title mb-0">Community care</h3>
+                                <p class="care-card-subtitle mb-0">A gentle reminder before you post.</p>
+                            </div>
+                        </div>
+                        <ul class="care-card-list mb-0">
+                            <li>Replies are public—share what you’re comfortable with.</li>
+                            <li>Be kind and assume good intent.</li>
+                            <li>You can delete your own posts anytime.</li>
+                        </ul>
+                    </div>
+                </aside>
 
                 <div class="confession-feed border-feed">
                     <div id="confession-feed-items">
@@ -81,9 +99,44 @@
             </div>
 
             <div class="col-xl-4 col-lg-4 d-none d-lg-block">
-                <div class="card-custom p-3 sticky-top" style="top: 1rem; background: var(--color-accent-soft);">
-                    <h3 class="h6" style="color: var(--color-teal);"><i class="fas fa-leaf me-2"></i>Community care</h3>
-                    <p class="small text-muted mb-0">Replies are public. Be kind. You can delete your own posts anytime.</p>
+                <div class="card-custom p-3 mb-3" style="background: #fff;">
+                    <h3 class="h6 mb-2" style="color: var(--color-teal);">
+                        <i class="fas fa-fire me-2"></i>Trending topics
+                    </h3>
+                    {% if trending_topics %}
+                        <div class="trending-list">
+                            {% for t in trending_topics %}
+                                <div class="trending-row d-flex justify-content-between align-items-center">
+                                    <span class="small fw-semibold text-dark">{{ t.label }}</span>
+                                    <span class="badge rounded-pill text-bg-light border">{{ t.posts }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="small text-muted mb-0">No trends yet — start the conversation.</p>
+                    {% endif %}
+                </div>
+
+                <div class="card-custom p-3" style="background: #fff;">
+                    <h3 class="h6 mb-2" style="color: var(--color-teal);">
+                        <i class="fas fa-bolt me-2"></i>Hot posts
+                    </h3>
+                    {% if trending_posts %}
+                        <div class="trending-posts">
+                            {% for p in trending_posts %}
+                                <a class="trending-post d-block text-decoration-none" href="#confession-{{ p.id }}">
+                                    <div class="small fw-semibold text-dark text-truncate">{{ p.title }}</div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="small text-muted">{{ p.topic_label }}</span>
+                                        <span class="small text-muted"><i class="far fa-heart me-1"></i>{{ p.like_count_db }}</span>
+                                    </div>
+                                </a>
+                                {% if not forloop.last %}<div class="trending-divider my-2"></div>{% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="small text-muted mb-0">No posts yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -259,6 +312,74 @@
     min-height: 58px;
     max-height: 130px;
     resize: vertical;
+}
+.compose-care-card {
+    padding: 0;
+}
+.care-card {
+    background:
+        radial-gradient(900px 280px at 20% 0%, rgba(0, 128, 128, 0.12), transparent 55%),
+        radial-gradient(700px 220px at 90% 10%, rgba(255, 105, 180, 0.10), transparent 50%),
+        #fff;
+    border: 1px solid rgba(0, 128, 128, 0.14);
+    border-radius: 14px;
+    padding: 0.9rem 0.95rem;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+}
+.care-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+.care-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 128, 128, 0.10);
+    border: 1px solid rgba(0, 128, 128, 0.14);
+    color: var(--color-teal);
+    flex: 0 0 auto;
+}
+.care-card-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--color-teal);
+    letter-spacing: 0.2px;
+}
+.care-card-subtitle {
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    margin-top: 0.15rem;
+}
+.care-card-list {
+    padding-left: 1.15rem;
+    margin: 0;
+    color: var(--color-text-dark);
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+.care-card-list li + li {
+    margin-top: 0.35rem;
+}
+.trending-row {
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.trending-row:last-child {
+    border-bottom: none;
+}
+.trending-post {
+    padding: 0.35rem 0;
+}
+.trending-post:hover .small.fw-semibold {
+    text-decoration: underline;
+}
+.trending-divider {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 </style>
 

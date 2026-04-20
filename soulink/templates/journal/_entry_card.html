@@ -1,0 +1,29 @@
+<div class="col-12 col-md-6 entry-card" data-entry-id="{{ entry.id }}">
+    <div class="card-custom p-4 h-100 entry-card-inner">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <p class="text-sm text-muted mb-1 d-flex align-items-center">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    <time datetime="{{ entry.entry_date|date:'c' }}">{{ entry.entry_date }}</time>
+                </p>
+                <h4 class="fw-semibold mb-2 text-break" style="color: var(--color-pink);">
+                    {{ entry.title }}
+                </h4>
+            </div>
+            <span class="badge bg-light text-dark small">
+                {{ entry.word_count|default:"0" }} words
+            </span>
+        </div>
+        <div class="entry-content text-muted mb-3" style="max-height: 200px; overflow-y: auto;">
+            {{ entry.entry|linebreaksbr|truncatechars_html:350 }}
+        </div>
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary quick-view-btn" data-entry-id="{{ entry.id }}" aria-label="Quick View Entry">
+                <i class="fas fa-eye me-1"></i> Quick View
+            </button>
+            <a href="{% url 'view_journal_entry' entry.id %}" class="btn btn-sm btn-primary-custom" aria-label="View & Analyze Entry">
+                <i class="fas fa-brain me-1"></i> View &amp; Analyze
+            </a>
+        </div>
+    </div>
+</div>

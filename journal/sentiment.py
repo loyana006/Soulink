@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from math import exp
 
 # Minimal English stopwords for keyword clouds
 _STOPWORDS = frozenset(
@@ -21,11 +22,57 @@ _STOPWORDS = frozenset(
 )
 
 
+_NEGATIONS = frozenset(
+    {
+        "not",
+        "no",
+        "never",
+        "none",
+        "nothing",
+        "hardly",
+        "barely",
+        "dont",
+        "don't",
+        "didnt",
+        "didn't",
+        "cant",
+        "can't",
+        "wont",
+        "won't",
+    }
+)
+
+_INTENSIFIERS = frozenset(
+    {
+        "very",
+        "really",
+        "so",
+        "extremely",
+        "incredibly",
+        "super",
+        "quite",
+        "too",
+    }
+)
+
+
+def _sigmoid(x: float) -> float:
+    return 1.0 / (1.0 + exp(-x))
+
+
+def _tokenize(text: str) -> list[str]:
+    # Keep simple word tokens; also normalize common apostrophe removals.
+    s = (text or "").lower()
+    s = s.replace("’", "'")
+    return re.findall(r"[a-z']+", s)
+
+
 def extract_emotional_state(text: str) -> dict:
     """
     Extract emotional state from journal text using keyword analysis.
     """
-    text_lower = text.lower()
+    tokens = _tokenize(text)
+    text_lower = " ".join(tokens)
 
     positive_keywords = [
         "happy",
@@ -115,26 +162,86 @@ def extract_emotional_state(text: str) -> dict:
         "routine",
     ]
 
-    positive_count = sum(1 for word in positive_keywords if word in text_lower)
-    negative_count = sum(1 for word in negative_keywords if word in text_lower)
-    neutral_count = sum(1 for word in neutral_keywords if word in text_lower)
+    # Count occurrences with simple negation/intensifier handling.
+    # We treat a keyword as "hit" if it appears as a token or phrase in the text.
+    # For single-word keywords, we count token occurrences; for phrases, substring match.
+    token_counts = Counter(tokens)
+
+    def phrase_hits(phrases: list[str]) -> int:
+        hits = 0
+        for p in phrases:
+            p = p.lower()
+            if " " in p:
+                if p in text_lower:
+                    hits += 1
+            else:
+                hits += int(token_counts.get(p, 0))
+        return hits
+
+    raw_pos = phrase_hits(positive_keywords)
+    raw_neg = phrase_hits(negative_keywords)
+    raw_neu = phrase_hits(neutral_keywords)
+
+    # Adjust for local negation around emotional words (e.g., "not happy").
+    # Window of 3 tokens back.
+    pos_adjust = 0
+    neg_adjust = 0
+    for i, tok in enumerate(tokens):
+        if tok in token_counts:
+            window = tokens[max(0, i - 3) : i]
+            has_neg = any(w in _NEGATIONS for w in window)
+            has_int = any(w in _INTENSIFIERS for w in window)
+            if has_int:
+                # Intensifiers increase evidence strength.
+                if tok in positive_keywords:
+                    pos_adjust += 1
+                if tok in negative_keywords:
+                    neg_adjust += 1
+            if has_neg:
+                # Negation flips a bit of evidence.
+                if tok in positive_keywords:
+                    raw_pos = max(0, raw_pos - 1)
+                    raw_neg += 1
+                elif tok in negative_keywords:
+                    raw_neg = max(0, raw_neg - 1)
+                    raw_pos += 1
+
+    positive_count = max(0, raw_pos + pos_adjust)
+    negative_count = max(0, raw_neg + neg_adjust)
+    neutral_count = max(0, raw_neu)
 
     total = positive_count + negative_count + neutral_count
+
     if total == 0:
+        # No evidence; keep it cautious.
         state = "mixed"
-        confidence = 0.3
-    elif positive_count > negative_count and positive_count > 0:
-        state = "positive"
-        confidence = min(positive_count / (total + 1), 0.95)
-    elif negative_count > positive_count and negative_count > 0:
-        state = "negative"
-        confidence = min(negative_count / (total + 1), 0.95)
-    elif neutral_count > 0 and positive_count == 0 and negative_count == 0:
-        state = "neutral"
-        confidence = 0.5
+        confidence = 0.25
     else:
-        state = "mixed"
-        confidence = min(max(positive_count, negative_count) / (total + 1), 0.7)
+        if positive_count == 0 and negative_count == 0 and neutral_count > 0:
+            state = "neutral"
+        elif positive_count > negative_count:
+            state = "positive"
+        elif negative_count > positive_count:
+            state = "negative"
+        else:
+            state = "mixed"
+
+        # Confidence is a product of:
+        # - evidence strength (more indicators => higher)
+        # - clarity (margin between pos and neg)
+        evidence_strength = _sigmoid((total - 2) / 2.0)  # ramps up after ~2 hits
+        if positive_count + negative_count == 0:
+            clarity = 0.6  # neutral-only evidence is inherently less specific
+        else:
+            margin = abs(positive_count - negative_count)
+            clarity = min(1.0, 0.55 + 0.15 * margin)
+
+        # Slight downweight when mixed signals dominate.
+        mixed_penalty = 1.0
+        if state == "mixed" and positive_count + negative_count > 0:
+            mixed_penalty = 0.85
+
+        confidence = min(0.97, max(0.05, evidence_strength * clarity * mixed_penalty))
 
     return {
         "state": state,

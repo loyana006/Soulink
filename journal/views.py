@@ -1,18 +1,43 @@
-from django.shortcuts import render, redirect
-from journal.forms import JournalEntryForm
-from django.http import HttpRequest, JsonResponse
-from django.contrib.auth.decorators import login_required
-from journal.models import JournalEntry
-from django.shortcuts import get_object_or_404
 import json
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import HttpRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
+from journal.forms import JournalEntryForm
+from journal.models import JournalEntry
 
 from accounts.models import UserGoal, UserProfile
 from accounts.profile_data import ensure_badges, week_start
 from journal.sentiment import extract_emotional_state
+
+ENTRIES_PAGE_SIZE = 12
+
+
+def _entries_queryset(user):
+    return JournalEntry.objects.filter(user=user).order_by("-entry_date", "-id")
+
+
+def _entries_batch(qs, before_date: datetime | None = None, before_id: int | None = None):
+    """
+    Cursor pagination by (entry_date, id) descending.
+    If before_date/before_id are provided, returns entries strictly older than that cursor.
+    """
+    if before_date is not None and before_id is not None:
+        cursor_dt = timezone.make_aware(before_date) if timezone.is_naive(before_date) else before_date
+        qs = qs.filter(Q(entry_date__lt=cursor_dt) | Q(entry_date=cursor_dt, id__lt=before_id))
+    chunk = list(qs[: ENTRIES_PAGE_SIZE + 1])
+    has_more = len(chunk) > ENTRIES_PAGE_SIZE
+    if has_more:
+        chunk = chunk[:ENTRIES_PAGE_SIZE]
+    return chunk, has_more
 
 
 @login_required
@@ -47,17 +72,73 @@ def journal(request: HttpRequest):
 
         context["msg"] = "Invalid Input"
 
-    # Get all entries for the user, ordered by most recent first
-    past_entries = JournalEntry.objects.filter(user=request.user).order_by('-entry_date')
+    entries_qs = _entries_queryset(request.user)
+    past_entries, entries_has_more = _entries_batch(entries_qs)
+    entries_next_before_date = (
+        timezone.localtime(past_entries[-1].entry_date).isoformat() if past_entries and entries_has_more else ""
+    )
+    entries_next_before_id = past_entries[-1].id if past_entries and entries_has_more else ""
 
     # Include any saved draft from session for restore (as JSON for template)
     draft = request.session.get("journal_draft") or {}
     context["journal_draft_json"] = mark_safe(json.dumps(draft))
     context["form"] = form
     context["past_entries"] = past_entries
-    context["total_entries"] = past_entries.count()
+    context["total_entries"] = entries_qs.count()
+    context["entries_has_more"] = entries_has_more
+    context["entries_next_before_date"] = entries_next_before_date
+    context["entries_next_before_id"] = entries_next_before_id
 
     return render(request, "journal.html", context)
+
+
+@login_required
+@require_http_methods(["GET"])
+def journal_entries_more(request: HttpRequest):
+    """JSON fragment for appending older journal entries (Load more)."""
+    raw_date = request.GET.get("before_date", "")
+    raw_id = request.GET.get("before_id", "")
+    try:
+        before_id = int(raw_id)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Invalid or missing before_id"}, status=400)
+
+    try:
+        # Accept both "Z" and "+00:00" forms
+        raw_date_norm = raw_date.replace("Z", "+00:00")
+        before_date = datetime.fromisoformat(raw_date_norm)
+    except Exception:
+        return JsonResponse({"error": "Invalid or missing before_date"}, status=400)
+
+    batch, has_more = _entries_batch(
+        _entries_queryset(request.user),
+        before_date=before_date,
+        before_id=before_id,
+    )
+
+    html_parts = []
+    for entry in batch:
+        html_parts.append(
+            render_to_string(
+                "journal/_entry_card.html",
+                {"entry": entry},
+                request=request,
+            )
+        )
+
+    next_before_date = (
+        timezone.localtime(batch[-1].entry_date).isoformat() if batch and has_more else None
+    )
+    next_before_id = batch[-1].id if batch and has_more else None
+
+    return JsonResponse(
+        {
+            "html": "".join(html_parts),
+            "has_more": has_more,
+            "next_before_date": next_before_date,
+            "next_before_id": next_before_id,
+        }
+    )
 
 
 @login_required

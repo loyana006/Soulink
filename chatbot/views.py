@@ -1,4 +1,7 @@
 import json
+import re
+from collections import Counter
+
 import requests
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
@@ -29,6 +32,111 @@ def _contains_crisis_keywords(text):
     """Check if message contains crisis-related keywords."""
     text_lower = text.lower()
     return any(kw in text_lower for kw in CRISIS_KEYWORDS)
+
+
+def _keyword_snippet(text: str, top_n: int = 2) -> list[str]:
+    words = [w.lower() for w in re.findall(r"[a-zA-Z]{4,}", text or "")]
+    stop = {
+        "this",
+        "that",
+        "with",
+        "have",
+        "been",
+        "from",
+        "your",
+        "about",
+        "just",
+        "like",
+        "feel",
+        "feels",
+        "feeling",
+        "today",
+        "really",
+        "think",
+        "thinking",
+        "because",
+        "when",
+        "what",
+        "where",
+        "there",
+        "they",
+        "them",
+        "then",
+        "than",
+        "will",
+        "would",
+        "could",
+        "should",
+    }
+    words = [w for w in words if w not in stop]
+    if not words:
+        return []
+    return [w for w, _ in Counter(words).most_common(top_n)]
+
+
+def _is_generic_bot_reply(text: str) -> bool:
+    t = (text or "").strip().lower()
+    if not t:
+        return True
+    generic_markers = [
+        "could you tell me more",
+        "tell me more",
+        "i'm here to listen",
+        "im here to listen",
+        "i understand",
+        "can you help me understand",
+        "i apologize, but i didn't understand",
+        "i apologize but i didn't understand",
+    ]
+    return any(m in t for m in generic_markers) or len(t) < 25
+
+
+def _interactive_reply(user_text: str, recent_user_text: str) -> str:
+    """
+    Local interactive fallback that feels responsive even if Rasa is generic.
+    Uses keyword-based emotional state + a tiny amount of conversation memory.
+    """
+    es = extract_emotional_state(user_text)
+    state = es.get("state") or "mixed"
+    conf = float(es.get("confidence") or 0.0)
+    keywords = _keyword_snippet(" ".join([recent_user_text or "", user_text or ""]), top_n=2)
+
+    def kw_part() -> str:
+        if not keywords:
+            return ""
+        if len(keywords) == 1:
+            return f' around "{keywords[0]}"'
+        return f' around "{keywords[0]}" and "{keywords[1]}"'
+
+    if state == "positive":
+        if conf >= 0.8:
+            return (
+                f"It sounds like there are some genuinely brighter feelings{kw_part()}. "
+                "What happened (or what did you do) that helped—so you can carry more of that into tomorrow?"
+            )
+        return (
+            f"I’m hearing some positive notes{kw_part()}. "
+            "What’s been going a bit better lately, even if it’s small?"
+        )
+    if state == "negative":
+        if conf >= 0.8:
+            return (
+                f"That sounds heavy{kw_part()}. I’m really glad you’re sharing it. "
+                "What part feels most urgent right now—the situation, the thoughts, or the body feelings?"
+            )
+        return (
+            f"I hear that this has been difficult{kw_part()}. "
+            "If you rewind to the moment it started to feel worse, what was happening right before that?"
+        )
+    if state == "neutral":
+        return (
+            f"Thanks for sharing{kw_part()}. When things feel “neutral” it can still mean a lot is going on underneath. "
+            "If you had to pick one word for what you want more of this week—calm, clarity, connection, confidence—what would it be?"
+        )
+    return (
+        f"It sounds like there are mixed feelings{kw_part()}. "
+        "What are the two strongest emotions in the mix right now, and which one do you wish felt a little lighter?"
+    )
 
 
 @login_required
@@ -88,6 +196,17 @@ def chat_with_yana(request):
             else:
                 bot_message = 'I\'m here to listen. Could you tell me more?'
 
+            # If Rasa replies are generic, generate a more interactive follow-up
+            recent_user_msgs = list(
+                ChatMessage.objects.filter(
+                    user=request.user, session=chat_session, role=ChatMessage.ROLE_USER
+                )
+                .order_by("-id")[:3]
+            )
+            recent_user_text = " ".join(reversed([m.text for m in recent_user_msgs]))
+            if _is_generic_bot_reply(bot_message):
+                bot_message = _interactive_reply(message, recent_user_text)
+
             # If crisis keywords detected, append safety helpline information
             if _contains_crisis_keywords(message):
                 bot_message = (
@@ -120,7 +239,14 @@ def chat_with_yana(request):
             
         except requests.exceptions.RequestException as e:
             # If RASA server is not available, return a fallback response
-            fallback_message = 'I\'m here to listen and support you. Could you tell me more about what you\'re feeling?'
+            recent_user_msgs = list(
+                ChatMessage.objects.filter(
+                    user=request.user, session=chat_session, role=ChatMessage.ROLE_USER
+                )
+                .order_by("-id")[:3]
+            )
+            recent_user_text = " ".join(reversed([m.text for m in recent_user_msgs]))
+            fallback_message = _interactive_reply(message, recent_user_text)
             if _contains_crisis_keywords(message):
                 fallback_message = fallback_message + "\n\n" + SAFETY_HELPLINES
 
@@ -337,8 +463,23 @@ def analyze_journal_entry(request):
             else:
                 analysis = 'Unable to analyze entry at this time.'
             
-            # Extract emotional insights (you can enhance this with custom RASA actions)
+            # Extract emotional insights
             emotional_state = extract_emotional_state(journal_text)
+
+            # If the Rasa output is generic, provide a more specific local analysis.
+            if _is_generic_bot_reply(analysis) or "self-reflection" in (analysis or "").lower():
+                state = emotional_state.get("state") or "mixed"
+                conf = int(float(emotional_state.get("confidence") or 0.0) * 100)
+                kws = _keyword_snippet(journal_text, top_n=3)
+                kw_line = f"Key themes: {', '.join(kws)}." if kws else "Key themes: (not enough signal)."
+                state_line = f"Emotional state: {state} ({conf}% confidence)."
+                prompt = {
+                    "positive": "What do you think contributed most to this shift, and how could you repeat it this week?",
+                    "negative": "What’s the hardest part of this right now—and what support (a person, a boundary, a small action) would help most?",
+                    "neutral": "If this entry could ask for one thing—rest, clarity, connection, progress—what would it ask for?",
+                    "mixed": "If two parts of you disagree here, what does each part want to protect?",
+                }.get(state, "What would feel like a small next step from here?")
+                analysis = f"{state_line}\n{kw_line}\n\n{prompt}"
             
             return JsonResponse({
                 'success': True,
@@ -350,9 +491,19 @@ def analyze_journal_entry(request):
         except requests.exceptions.RequestException as e:
             # If RASA server is not available, provide basic analysis
             emotional_state = extract_emotional_state(journal_text)
+            state = emotional_state.get("state") or "mixed"
+            conf = int(float(emotional_state.get("confidence") or 0.0) * 100)
+            kws = _keyword_snippet(journal_text, top_n=3)
+            kw_line = f"Key themes: {', '.join(kws)}." if kws else "Key themes: (not enough signal)."
+            prompt = {
+                "positive": "What helped you feel this way, and how can you do a little more of it?",
+                "negative": "What feels like the most immediate pressure point right now—and what would make it 10% lighter?",
+                "neutral": "If you could choose one gentle focus for tomorrow, what would it be?",
+                "mixed": "What are the two strongest emotions you notice, and which one needs more care?",
+            }.get(state, "What would feel like a small next step from here?")
             return JsonResponse({
                 'success': True,
-                'analysis': 'Based on your journal entry, I can see you\'re expressing your thoughts and feelings. This is a positive step in self-reflection and emotional awareness.',
+                'analysis': f"Emotional state: {state} ({conf}% confidence).\n{kw_line}\n\n{prompt}",
                 'emotional_state': emotional_state,
                 'entry_id': entry_id,
                 'note': 'RASA server unavailable, using fallback analysis'
